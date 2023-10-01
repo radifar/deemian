@@ -13,8 +13,6 @@ lark = "^1.1.7"
 click = "^8.1.7"
 rdkit = "^2023.3.3"
 
-[tool.poetry.dev-dependencies]
-
 [tool.poetry.group.dev.dependencies]
 rich = "^13.6.0"
 pytest = "^7.4.2"
