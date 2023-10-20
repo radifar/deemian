@@ -1,0 +1,30 @@
+start: step+
+
+?step: open_molecule | selection | measurement | presentation
+
+open_molecule: "open" FILE_NAME "as" IDENTIFIER                     -> open_molecule
+selection: "select" IDENTIFIER "[" selection_instruction+ "]"       -> selection
+measurement: "measure" IDENTIFIER "[" measurement_instruction+ "]"  -> measurement
+presentation: "present" IDENTIFIER "[" presentation_instruction+"]" -> presentation
+
+selection_instruction: "selection" (MACRO (LOGIC (MACRO|keyvalue))?|keyvalue (LOGIC keyvalue)?) -> selection_string
+                     | "molecule" IDENTIFIER        -> target_molecule
+
+measurement_instruction: "interactions" INTERACTION("," INTERACTION)*     -> interaction_list
+                       | PREPOSITION IDENTIFIER (PREPOSITION IDENTIFIER)? -> interacting_subject
+
+presentation_instruction: RESULTS("," RESULTS)* IDENTIFIER -> presentation_format
+
+keyvalue: "resname" IDENTIFIER+ -> resname
+        | "resid" IDENTIFIER+ -> resid
+
+MACRO: ("protein"|"hydrophobic"|"aromatic"|"charged"|"sugar"|"ion"|"metal"|"water"|"nucleic_acid")
+LOGIC: ("AND"|"OR"|"NOT")
+INTERACTION: ("nonpolar"|"electrostatic"|"hydrogen_bond"|"pi"|"all")
+PREPOSITION: ("on"|"in"|"between"|"and")
+RESULTS: ("interactions"|"IPA"|"bitstring")
+FILE_NAME: /[0-9a-zA-Z_.\-]+/
+IDENTIFIER: /[0-9a-zA-Z_.\-]+/
+
+%import common.WS
+%ignore WS
