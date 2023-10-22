@@ -6,9 +6,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = u"deemian"
-copyright = u"2023, Muhammad Radifar"
-author = u"Muhammad Radifar"
+project = "deemian"
+copyright = "2023, Muhammad Radifar"
+author = "Muhammad Radifar"
 
 # -- General configuration ---------------------------------------------------
 
