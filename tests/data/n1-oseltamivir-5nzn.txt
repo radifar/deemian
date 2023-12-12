@@ -1,0 +1,17 @@
+molecule 5nzn.pdb [
+	select protein_A = chain A and protein
+	select oseltamivir = chain A and resname G39
+	assign bond oseltamivir template CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O
+]
+
+measure protein_ligand [
+	interactions all
+	ionizable positive true
+	ionizable negative true
+	between protein_A and oseltamivir
+]
+
+present protein_ligand [
+	interactions protein_ligand.txt
+	deemiandata protein_ligand.db
+]
