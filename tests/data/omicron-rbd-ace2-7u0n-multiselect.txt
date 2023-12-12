@@ -1,0 +1,20 @@
+molecule 7u0n.pdb [
+	select ace2_hotspot31 = chain A and protein and resid 1 to 55
+	select ace2_hotspot353 = chain A and protein and resid 341 to 364
+	select spike_rbm = chain E and protein and resid 470 to 510
+]
+
+measure ace2_spike_rbd [
+	interactions all
+	ionizable positive true
+	ionizable negative true
+	between spike_rbm and ace2_hotspot31 as rbm_h31
+	between spike_rbm and ace2_hotspot353 as rbm_h353
+	between ace2_hotspot31 and ace2_hotspot353 as internal_ace2
+	between spike_rbm and spike_rbm as internal_rbm
+]
+
+present ace2_spike_rbd [
+	interactions ace2_spike_rbd_detailed.txt
+	deemiandata ace2_spike_rbd_detailed.db
+]

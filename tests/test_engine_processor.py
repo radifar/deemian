@@ -1,213 +1,65 @@
 from pathlib import Path
 
+from lark import Tree
 import pytest
 
 from deemian.engine import processor
 
 
 @pytest.fixture
-def parse_7qxy_i1g():
-    """Parse the script for simple analysis of 7QXY"""
-
+def n1_5nzn():
     base_path = Path(__file__).parent
 
-    with open(base_path / "data/01-7qxy-i1g.txt") as reader:
+    with open(base_path / "data/n1-oseltamivir-5nzn.txt") as reader:
         text = reader.read()
-        steps = processor.parser(text)
-
-        return steps
+        return processor.parser(text)
 
 
-def test_parser_open_pdb_complex(parse_7qxy_i1g):
-    """
-    open 7qxy.pdb as target
-    =======================
+@pytest.fixture
+def spike_7u0n():
+    base_path = Path(__file__).parent
 
-    open_molecule
-    ├── 7qxy.pdb
-    └── target
-
-    Tree('open_molecule',
-    [
-        Token('FILE_NAME', '7qxy.pdb'),
-        Token('IDENTIFIER', 'target')
-    ])
-    """
-
-    step_open = parse_7qxy_i1g.children[0]
-
-    file_name = step_open.children[0]
-    target_molecule = step_open.children[1]
-
-    assert step_open.data == "open_molecule"
-    assert file_name == "7qxy.pdb"
-    assert target_molecule == "target"
+    with open(base_path / "data/omicron-rbd-ace2-7u0n-multiselect.txt") as reader:
+        text = reader.read()
+        return processor.parser(text)
 
 
-def test_parser_select_protein(parse_7qxy_i1g):
-    """
-    select prot [
-        selection protein
-        molecule target
+@pytest.fixture
+def vps4_2kw3():
+    base_path = Path(__file__).parent
+
+    with open(base_path / "data/vps4-chmp6-2kw3.txt") as reader:
+        text = reader.read()
+        return processor.parser(text)
+
+
+def count_instruction(tree: Tree, data: str):
+    instruction_list = list(tree.find_data(data))
+
+    return len(instruction_list)
+
+
+def test_instruction_count(n1_5nzn, spike_7u0n, vps4_2kw3):
+    trees = [n1_5nzn, spike_7u0n, vps4_2kw3]
+
+    select_count = [count_instruction(tree, "assign_selection") for tree in trees]
+    bond_correction_count = [count_instruction(tree, "bond_correction") for tree in trees]
+    interaction_list_count = [count_instruction(tree, "interaction_list") for tree in trees]
+    ionizable_count = [count_instruction(tree, "include_ionizable") for tree in trees]
+    interacting_subject_count = [count_instruction(tree, "interacting_subject") for tree in trees]
+    interacting_subject_with_alias_count = [
+        count_instruction(tree, "interacting_subject_with_alias") for tree in trees
     ]
-    =====================
+    conformation_range_count = [count_instruction(tree, "conformation_range") for tree in trees]
+    readable_output_count = [count_instruction(tree, "readable_output") for tree in trees]
+    deemian_data_count = [count_instruction(tree, "deemian_data") for tree in trees]
 
-    selection
-    ├── prot
-    ├── selection_string
-    │   └── protein
-    └── target_molecule
-        └── target
-
-    Tree('selection',
-    [
-        Token('IDENTIFIER', 'prot'),
-        Tree('selection_string',
-        [
-            Token('MACRO', 'protein')
-        ]),
-        Tree('target_molecule',
-        [
-            Token('IDENTIFIER', 'target')
-        ])
-    ])
-    """
-
-    step_select = parse_7qxy_i1g.children[1]
-
-    selection_identifier = step_select.children[0]
-    selection_string = step_select.children[1].children
-    target_molecule = step_select.children[2].children
-
-    assert step_select.data == "selection"
-    assert selection_identifier == "prot"
-    assert selection_string == ["protein"]
-    assert target_molecule == ["target"]
-
-
-def test_parser_select_ligand(parse_7qxy_i1g):
-    """
-    select dcp-pd3 [
-        selection resname I1G
-        molecule target
-    ]
-    =========================
-
-    selection
-    ├── dcp-pd3
-    ├── selection_string
-    │   └── resname
-    │       └── I1G
-    └── target_molecule
-        └── target
-
-    Tree('selection',
-    [
-        Token('IDENTIFIER', 'dcp-pd3'),
-        Tree('selection_string',
-        [
-            Tree('resname',
-            [
-                Token('IDENTIFIER', 'I1G')
-            ])
-        ]),
-        Tree('target_molecule',
-        [
-            Token('IDENTIFIER', 'target')
-        ])
-    ])
-    """
-
-    step_select = parse_7qxy_i1g.children[2]
-
-    selection_identifier = step_select.children[0]
-    selection_string = step_select.children[1].children[0]
-    target_molecule = step_select.children[2].children[0]
-
-    assert step_select.data == "selection"
-    assert selection_identifier == "dcp-pd3"
-    assert selection_string.data == "resname"
-    assert selection_string.children == ["I1G"]
-    assert target_molecule == "target"
-
-
-def test_parser_measurement(parse_7qxy_i1g):
-    """
-    measure protein_ligand [
-        interactions all
-        between prot and dcp-pd3
-    ]
-    ============================
-
-    measurement
-    ├── protein_ligand
-    ├── interaction_list
-    │   └── all
-    └── interacting_subject
-        ├── between
-        ├── prot
-        ├── and
-        └── dcp-pd3
-
-    Tree('measurement',
-    [
-        Token('IDENTIFIER', 'protein_ligand'),
-        Tree('interaction_list',
-        [
-            Token('INTERACTION', 'all')
-        ]),
-        Tree('interacting_subject',
-        [
-            Token('PREPOSITION', 'between'),
-            Token('IDENTIFIER', 'prot'),
-            Token('PREPOSITION', 'and'),
-            Token('IDENTIFIER', 'dcp-pd3')
-        ])
-    ])
-    """
-
-    step_measurement = parse_7qxy_i1g.children[3]
-
-    measurement_identifier = step_measurement.children[0]
-    interaction_list = step_measurement.children[1].children
-    interacting_subject = step_measurement.children[2].children
-
-    assert step_measurement.data == "measurement"
-    assert measurement_identifier == "protein_ligand"
-    assert interaction_list == ["all"]
-    assert interacting_subject == ["between", "prot", "and", "dcp-pd3"]
-
-
-def test_parser_presentation(parse_7qxy_i1g):
-    """
-    present protein_ligand [
-        interactions protein_ligand.txt
-    ]
-    ===================================
-
-    presentation
-    ├── protein_ligand
-    └── presentation_format
-        ├── interactions
-        └── protein_ligand.txt
-
-    Tree('presentation',
-    [
-        Token('IDENTIFIER', 'protein_ligand'),
-        Tree('presentation_format',
-        [
-            Token('RESULTS', 'interactions'),
-            Token('IDENTIFIER', 'protein_ligand.txt')
-        ])
-    ])
-    """
-
-    step_presentation = parse_7qxy_i1g.children[4]
-
-    presentation_identifier = step_presentation.children[0]
-    presentation_format = step_presentation.children[1]
-
-    assert step_presentation.data == "presentation"
-    assert presentation_identifier == "protein_ligand"
-    assert presentation_format.data == "presentation_format"
-    assert presentation_format.children == ["interactions", "protein_ligand.txt"]
+    assert select_count == [2, 3, 2]
+    assert bond_correction_count == [1, 0, 0]
+    assert interaction_list_count == [1, 1, 1]
+    assert ionizable_count == [2, 2, 2]
+    assert interacting_subject_count == [1, 0, 1]
+    assert interacting_subject_with_alias_count == [0, 4, 0]
+    assert conformation_range_count == [0, 0, 1]
+    assert readable_output_count == [1, 1, 1]
+    assert deemian_data_count == [1, 1, 1]

@@ -1,0 +1,17 @@
+molecule 2kw3.pdb [
+	select vps4 = chain A and protein
+	select chmp6 = chain B and protein
+]
+
+measure vps4_chmp6 [
+	interactions all
+	ionizable positive true
+	ionizable negative true
+	between vps4 and chmp6
+	conformation 1 to 20
+]
+
+present vps4_chmp6 [
+	interactions vps4_chmp6.txt
+	deemiandata vps4_chmp6.db
+]
