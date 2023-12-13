@@ -1,6 +1,6 @@
 molecule 2kw3.pdb [
-	select vps4 = chain A and protein
-	select chmp6 = chain B and protein
+	select vps4 = protein and chain A
+	select chmp6 = protein and chain B
 ]
 
 measure vps4_chmp6 [

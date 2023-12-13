@@ -86,7 +86,7 @@ def test_instruction_count(n1_5nzn, spike_7u0n, vps4_2kw3):
     assert deemian_data_count == [1, 1, 1]
 
 
-def test_molecule_transformer(n1_transformed, spike_transformed):
+def test_molecule_transformer(n1_transformed, spike_transformed, vps_transformed):
     n1_molecule = n1_transformed.children[0]
     n1_selection_1 = n1_molecule.children[1]
     n1_selection_2 = n1_molecule.children[2]
@@ -96,6 +96,10 @@ def test_molecule_transformer(n1_transformed, spike_transformed):
     spike_selection_1 = spike_molecule.children[1]
     spike_selection_2 = spike_molecule.children[2]
     spike_selection_3 = spike_molecule.children[3]
+
+    vps_molecule = vps_transformed.children[0]
+    vps_selection_1 = vps_molecule.children[1]
+    vps_selection_2 = vps_molecule.children[2]
 
     assert n1_selection_1.name == "protein_A"
     assert n1_selection_1.selection == [("chain", "A"), ("and", "protein")]
@@ -113,6 +117,13 @@ def test_molecule_transformer(n1_transformed, spike_transformed):
     assert spike_selection_3.name == "spike_rbm"
     assert spike_selection_3.selection == [("chain", "E"), ("and", "protein"), ("and", "resid_range", "470", "510")]
     assert spike_selection_3.type == "selection"
+
+    assert vps_selection_1.name == "vps4"
+    assert vps_selection_1.selection == [("protein",), ("and", "chain", "A")]
+    assert vps_selection_1.type == "selection"
+    assert vps_selection_2.name == "chmp6"
+    assert vps_selection_2.selection == [("protein",), ("and", "chain", "B")]
+    assert vps_selection_2.type == "selection"
 
     assert n1_bond_correction.name == "oseltamivir"
     assert n1_bond_correction.template == "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O"
