@@ -6,7 +6,7 @@ molecule_op: "molecule" IDENTIFIER "[" molecule_op_instruction+ "]" -> molecule_
 measurement: "measure" IDENTIFIER "[" measurement_instruction+ "]"  -> measurement
 presentation: "present" IDENTIFIER "[" presentation_instruction+"]" -> presentation
 
-molecule_op_instruction: "select" IDENTIFIER "=" entity (LOGIC~1..2 entity)* -> assign_selection
+molecule_op_instruction: "select" IDENTIFIER "=" selection combine_selection* -> assign_selection
                        | "assign" "bond" IDENTIFIER "template" SMILES        -> bond_correction
 
 measurement_instruction: "interactions" INTERACTION("," INTERACTION)*                     -> interaction_list
@@ -19,9 +19,10 @@ measurement_instruction: "interactions" INTERACTION("," INTERACTION)*           
 presentation_instruction: RESULTS("," RESULTS)* FILE_NAME -> readable_output
                         | "deemiandata" FILE_NAME         -> deemian_data
 
-?entity: keyvalue | MACRO
+combine_selection: LOGIC~1..2 (keyvalue | MACRO)
+selection: keyvalue | MACRO
 
-keyvalue: "resname" IDENTIFIER("," IDENTIFIER)* -> resname
+?keyvalue: "resname" IDENTIFIER("," IDENTIFIER)* -> resname
         | "resid" INTEGER("," INTEGER)*         -> resid
         | "resid" INTEGER "to" INTEGER          -> resid_range
         | "chain" IDENTIFIER("," IDENTIFIER)*   -> chain
