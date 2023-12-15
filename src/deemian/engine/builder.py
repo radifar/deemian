@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 
 @dataclass
 class DeemianData:
+    identifier: dict = field(default_factory=lambda: {})
     selections: dict = field(default_factory=lambda: {})
     interactions: list = field(default_factory=lambda: [])
     ionizable: dict = field(default_factory=lambda: {"positive": False, "negative": False})
@@ -42,11 +43,14 @@ class DeemianDataBuilder:
     def set_conformation_range(self, start: str, end: str):
         self.deemian_data.conformation = list(range(int(start), int(end) + 1))
 
-    def calculate_interactions(self):
-        return 1
+    def calculate_interactions(self, measurement_identifier: str):
+        return measurement_identifier
 
-    def generate_readable_output(self):
-        return 1
+    def write_readable_output(self, out_file: str, presentation_identifier: str):
+        return (out_file, presentation_identifier)
+
+    def write_deemian_data(self, out_file: str, presentation_identifier: str):
+        return (out_file, presentation_identifier)
 
     def generate_deemian_data(self):
         return self.deemian_data
