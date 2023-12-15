@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 
-import pandas as pd
 from rdkit.Chem import AllChem as Chem
 
 from deemian.chem.reader import mol_to_dataframe
@@ -22,7 +21,7 @@ class DeemianDataBuilder:
     def __init__(self, deemian_data: DeemianData) -> None:
         self.deemian_data = deemian_data
 
-    def read_molecule(self, mol_filename: str) -> pd.DataFrame:
+    def read_molecule(self, mol_filename: str):
         mol = Chem.MolFromPDBFile(mol_filename, removeHs=False)
         mol_df = mol_to_dataframe(mol)
         self.deemian_data.molecules[mol_filename] = mol_df
