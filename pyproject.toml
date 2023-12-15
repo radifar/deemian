@@ -12,6 +12,7 @@ pydantic = "^2.4.2"
 lark = "^1.1.7"
 click = "^8.1.7"
 rdkit = "^2023.3.3"
+pandas = "^2.1.4"
 
 [tool.poetry.group.dev.dependencies]
 rich = "^13.6.0"
