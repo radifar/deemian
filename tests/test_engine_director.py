@@ -182,6 +182,7 @@ def test_engine_director_simple(steps_simple):
 
     data_builder.assert_has_calls(
         [
+            call.read_molecule("5nzn.pdb"),
             call.assign_selection("protein_A", [("chain", "A"), ("and", "protein")], "5nzn.pdb"),
             call.assign_selection("oseltamivir", [("chain", "A"), ("and", "resname", "G39")], "5nzn.pdb"),
             call.correct_bond("oseltamivir", "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O"),
@@ -203,6 +204,7 @@ def test_engine_director_multiselect(steps_multiselect):
 
     data_builder.assert_has_calls(
         [
+            call.read_molecule("7u0n.pdb"),
             call.assign_selection(
                 "ace2_hotspot31", [("chain", "A"), ("and", "protein"), ("and", "resid_range", "1", "55")], "7u0n.pdb"
             ),
@@ -234,6 +236,7 @@ def test_engine_director_multiconf(steps_multiconf):
 
     data_builder.assert_has_calls(
         [
+            call.read_molecule("2kw3.pdb"),
             call.assign_selection("vps4", [("protein",), ("and", "chain", "A")], "2kw3.pdb"),
             call.assign_selection("chmp6", [("protein",), ("and", "chain", "B")], "2kw3.pdb"),
             call.set_interactions(["all"]),

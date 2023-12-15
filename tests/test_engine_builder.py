@@ -14,6 +14,7 @@ def builder():
 def test_deemian_data():
     deemian_data = DeemianData()
 
+    assert deemian_data.molecules == {}
     assert deemian_data.selections == {}
     assert deemian_data.interactions == []
     assert deemian_data.ionizable == {"positive": False, "negative": False}
@@ -23,11 +24,24 @@ def test_deemian_data():
     assert deemian_data.readable_output == {}
 
 
-def test_deemian_data_builder_molecule(builder):
+def test_deemian_data_builder_molecule_reader(builder):
+    mol_filename = "tests/data/5nzn.pdb"
+    builder.read_molecule(mol_filename)
+
+    deemian_data = builder.generate_deemian_data()
+    mol_df = deemian_data.molecules[mol_filename]
+    df_column = list(mol_df.columns)
+
+    assert mol_df.shape == (27933, 6)
+    assert df_column == ["chain_id", "atom_symbol", "atom_name", "residue_number", "residue_name", "conf_0"]
+
+
+def test_deemian_data_builder_molecule_selection(builder):
     name = "protein_A"
     selection = [("chain", "A"), ("and", "protein")]
-    molecule = "5nzn.pdb"
-    builder.assign_selection(name, selection, molecule)
+    mol_filename = "5nzn.pdb"
+
+    builder.assign_selection(name, selection, mol_filename)
     correct_bond = builder.correct_bond("oseltamivir", "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O")
 
     deemian_data = builder.generate_deemian_data()

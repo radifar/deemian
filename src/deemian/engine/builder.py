@@ -1,9 +1,14 @@
 from dataclasses import dataclass, field
 
+import pandas as pd
+from rdkit.Chem import AllChem as Chem
+
+from deemian.chem.reader import mol_to_dataframe
+
 
 @dataclass
 class DeemianData:
-    identifier: dict = field(default_factory=lambda: {})
+    molecules: dict = field(default_factory=lambda: {})
     selections: dict = field(default_factory=lambda: {})
     interactions: list = field(default_factory=lambda: [])
     ionizable: dict = field(default_factory=lambda: {"positive": False, "negative": False})
@@ -17,8 +22,13 @@ class DeemianDataBuilder:
     def __init__(self, deemian_data: DeemianData) -> None:
         self.deemian_data = deemian_data
 
-    def assign_selection(self, name: str, selection: list[tuple], molecule: str):
-        selection.insert(0, molecule)
+    def read_molecule(self, mol_filename: str) -> pd.DataFrame:
+        mol = Chem.MolFromPDBFile(mol_filename, removeHs=False)
+        mol_df = mol_to_dataframe(mol)
+        self.deemian_data.molecules[mol_filename] = mol_df
+
+    def assign_selection(self, name: str, selection: list[tuple], mol_filename: str):
+        selection.insert(0, mol_filename)
         self.deemian_data.selections[name] = selection
 
     def correct_bond(self, name: str, template: str):
