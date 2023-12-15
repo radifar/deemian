@@ -43,6 +43,8 @@ def test_deemian_data_builder_measure(builder):
     builder.set_interacting_subjects("protein_A", "oseltamivir", "protein_A:oseltamivir")
     builder.set_conformation("1")
 
+    interaction_results = builder.calculate_interactions("protein_ligand")
+
     deemian_data = builder.generate_deemian_data()
 
     assert deemian_data.interactions == ["all"]
@@ -50,6 +52,8 @@ def test_deemian_data_builder_measure(builder):
     assert deemian_data.ionizable["negative"] is False
     assert deemian_data.interacting_subjects["protein_A:oseltamivir"] == ("protein_A", "oseltamivir")
     assert deemian_data.conformation == [1]
+
+    assert interaction_results == "protein_ligand"
 
 
 def test_deemian_data_builder_measure_conf_range(builder):
@@ -61,8 +65,8 @@ def test_deemian_data_builder_measure_conf_range(builder):
 
 
 def test_deemian_data_builder_present(builder):
-    interaction_results = builder.calculate_interactions()
-    readable_output = builder.generate_readable_output()
+    readable_output = builder.write_readable_output("protein_ligand.txt", "protein_ligand")
+    deemian_output = builder.write_deemian_data("protein_ligand.db", "protein_ligand")
 
-    assert interaction_results == 1
-    assert readable_output == 1
+    assert readable_output == ("protein_ligand.txt", "protein_ligand")
+    assert deemian_output == ("protein_ligand.db", "protein_ligand")

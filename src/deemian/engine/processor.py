@@ -14,7 +14,7 @@ class InstructionTransformer(Transformer):
     Selection = namedtuple("Selection", "name selection type", defaults=["selection"])
     BondCorrection = namedtuple("BondCorrection", "name template type", defaults=["bond_correction"])
     ReadableOutput = namedtuple("ReadableOutput", "results out_file type", defaults=["readable_output"])
-    DeemianData = namedtuple("DeemianData", "outfile type", defaults=["deemian_data"])
+    DeemianData = namedtuple("DeemianData", "out_file type", defaults=["deemian_data"])
     InteractionList = namedtuple("InteractionList", "interactions type", defaults=["interaction_list"])
     IncludeIonizable = namedtuple("IncludeIonizable", "charge boolean type", defaults=["include_ionizable"])
     Conformation = namedtuple("Conformation", "number type", defaults=["conformation"])

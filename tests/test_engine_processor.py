@@ -177,5 +177,5 @@ def test_present_transform(n1_transformed):
     assert n1_readable_output.results == ["interactions"]
     assert n1_readable_output.out_file == "protein_ligand.txt"
     assert n1_readable_output.type == "readable_output"
-    assert n1_deemian_data.outfile == "protein_ligand.db"
+    assert n1_deemian_data.out_file == "protein_ligand.db"
     assert n1_deemian_data.type == "deemian_data"
