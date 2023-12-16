@@ -1,6 +1,8 @@
+from unittest.mock import patch
+
 import pytest
 
-from deemian.engine.builder import DeemianData, DeemianDataBuilder
+from deemian.engine.builder import Chem, DeemianData, DeemianDataBuilder
 
 
 @pytest.fixture
@@ -25,15 +27,19 @@ def test_deemian_data():
 
 
 def test_deemian_data_builder_molecule_reader(builder):
-    mol_filename = "tests/data/5nzn.pdb"
-    builder.read_molecule(mol_filename)
+    with patch.object(Chem, "MolFromPDBFile") as mol_from_pdb:
+        with patch("deemian.engine.builder.mol_to_dataframe") as mol_to_df:
+            mol_from_pdb.return_value = "rdkit.Chem.rdchem.Mol"
+            mol_to_df.return_value = "pd.DataFrame"
 
-    deemian_data = builder.generate_deemian_data()
-    mol_df = deemian_data.molecules[mol_filename]
-    df_column = list(mol_df.columns)
+            mol_filename = "tests/data/5nzn.pdb"
+            builder.read_molecule(mol_filename)
 
-    assert mol_df.shape == (27933, 6)
-    assert df_column == ["chain_id", "atom_symbol", "atom_name", "residue_number", "residue_name", "conf_0"]
+            deemian_data = builder.generate_deemian_data()
+
+            mol_from_pdb.assert_called_once_with(mol_filename, removeHs=False)
+            mol_to_df.assert_called_once_with("rdkit.Chem.rdchem.Mol")
+            assert deemian_data.molecules[mol_filename] == "pd.DataFrame"
 
 
 def test_deemian_data_builder_molecule_selection(builder):
