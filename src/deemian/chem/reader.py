@@ -29,6 +29,8 @@ def mol_to_dataframe(mol):
         atom_id=pd.Series(atom_id),
     )
 
+    # note: using pyarrow for list of float making it slower for 'to_list' conversion,
+    #       the scipy's KDTree require list of list as the input.
     for index, conformer in enumerate(mol.GetConformers()):
         coordinate_number = "conf_" + str(index)
         mol_record[coordinate_number] = list(conformer.GetPositions())
