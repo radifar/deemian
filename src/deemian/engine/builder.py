@@ -8,7 +8,7 @@ from deemian.chem.selection import mol_dataframe_selection
 
 @dataclass
 class DeemianData:
-    molecules: dict = field(default_factory=lambda: {})
+    molecule_dataframe: dict = field(default_factory=lambda: {})
     selections: dict = field(default_factory=lambda: {})
     interactions: list = field(default_factory=lambda: [])
     ionizable: dict = field(default_factory=lambda: {"positive": False, "negative": False})
@@ -25,11 +25,11 @@ class DeemianDataBuilder:
     def read_molecule(self, mol_filename: str):
         mol = Chem.MolFromPDBFile(mol_filename, removeHs=False)
         mol_df = mol_to_dataframe(mol)
-        self.deemian_data.molecules[mol_filename] = mol_df
+        self.deemian_data.molecule_dataframe[mol_filename] = mol_df
 
     def assign_selection(self, name: str, selection: list[tuple], mol_filename: str):
-        mol_df = self.deemian_data.molecules[mol_filename]
-        self.deemian_data.molecules[name] = mol_dataframe_selection(selection, mol_df)
+        mol_df = self.deemian_data.molecule_dataframe[mol_filename]
+        self.deemian_data.molecule_dataframe[name] = mol_dataframe_selection(selection, mol_df)
         selection.insert(0, mol_filename)
         self.deemian_data.selections[name] = selection
 

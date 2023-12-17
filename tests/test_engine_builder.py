@@ -16,7 +16,7 @@ def builder():
 def test_deemian_data():
     deemian_data = DeemianData()
 
-    assert deemian_data.molecules == {}
+    assert deemian_data.molecule_dataframe == {}
     assert deemian_data.selections == {}
     assert deemian_data.interactions == []
     assert deemian_data.ionizable == {"positive": False, "negative": False}
@@ -39,14 +39,14 @@ def test_deemian_data_builder_molecule_reader(builder):
 
             mol_from_pdb.assert_called_once_with(mol_filename, removeHs=False)
             mol_to_df.assert_called_once_with("rdkit.Chem.rdchem.Mol")
-            assert deemian_data.molecules[mol_filename] == "pd.DataFrame"
+            assert deemian_data.molecule_dataframe[mol_filename] == "pd.DataFrame"
 
 
 def test_deemian_data_builder_molecule_selection(builder):
     with patch("deemian.engine.builder.mol_dataframe_selection") as mds:
         mds.return_value = "selected_df:pd.DataFrame"
         deemian_data = builder.generate_deemian_data()
-        deemian_data.molecules["5nzn.pdb"] = "n1_df:pd.DataFrame"
+        deemian_data.molecule_dataframe["5nzn.pdb"] = "n1_df:pd.DataFrame"
 
         name = "protein_A"
         selection = [("chain", "A"), ("and", "protein")]
@@ -56,7 +56,7 @@ def test_deemian_data_builder_molecule_selection(builder):
         correct_bond = builder.correct_bond("oseltamivir", "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O")
 
         mds.assert_called_once_with(selection, "n1_df:pd.DataFrame")
-        assert deemian_data.molecules["protein_A"] == "selected_df:pd.DataFrame"
+        assert deemian_data.molecule_dataframe["protein_A"] == "selected_df:pd.DataFrame"
         assert deemian_data.selections["protein_A"] == ["5nzn.pdb", ("chain", "A"), ("and", "protein")]
         assert correct_bond == ("oseltamivir", "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O")
 
