@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from rdkit.Chem import AllChem as Chem
 
 from deemian.chem.reader import mol_to_dataframe
+from deemian.chem.selection import mol_dataframe_selection
 
 
 @dataclass
@@ -27,6 +28,8 @@ class DeemianDataBuilder:
         self.deemian_data.molecules[mol_filename] = mol_df
 
     def assign_selection(self, name: str, selection: list[tuple], mol_filename: str):
+        mol_df = self.deemian_data.molecules[mol_filename]
+        self.deemian_data.molecules[name] = mol_dataframe_selection(selection, mol_df)
         selection.insert(0, mol_filename)
         self.deemian_data.selections[name] = selection
 

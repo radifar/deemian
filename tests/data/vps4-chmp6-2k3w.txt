@@ -1,4 +1,4 @@
-molecule 2kw3.pdb [
+molecule 2k3w.pdb [
 	select vps4 = protein and chain A
 	select chmp6 = protein and chain B
 ]

@@ -43,17 +43,22 @@ def test_deemian_data_builder_molecule_reader(builder):
 
 
 def test_deemian_data_builder_molecule_selection(builder):
-    name = "protein_A"
-    selection = [("chain", "A"), ("and", "protein")]
-    mol_filename = "5nzn.pdb"
+    with patch("deemian.engine.builder.mol_dataframe_selection") as mds:
+        mds.return_value = "selected_df:pd.DataFrame"
+        deemian_data = builder.generate_deemian_data()
+        deemian_data.molecules["5nzn.pdb"] = "n1_df:pd.DataFrame"
 
-    builder.assign_selection(name, selection, mol_filename)
-    correct_bond = builder.correct_bond("oseltamivir", "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O")
+        name = "protein_A"
+        selection = [("chain", "A"), ("and", "protein")]
+        mol_filename = "5nzn.pdb"
 
-    deemian_data = builder.generate_deemian_data()
+        builder.assign_selection(name, selection, mol_filename)
+        correct_bond = builder.correct_bond("oseltamivir", "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O")
 
-    assert deemian_data.selections["protein_A"] == ["5nzn.pdb", ("chain", "A"), ("and", "protein")]
-    assert correct_bond == ("oseltamivir", "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O")
+        mds.assert_called_once_with(selection, "n1_df:pd.DataFrame")
+        assert deemian_data.molecules["protein_A"] == "selected_df:pd.DataFrame"
+        assert deemian_data.selections["protein_A"] == ["5nzn.pdb", ("chain", "A"), ("and", "protein")]
+        assert correct_bond == ("oseltamivir", "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O")
 
 
 def test_deemian_data_builder_measure(builder):
