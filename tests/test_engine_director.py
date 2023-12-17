@@ -144,7 +144,7 @@ def steps_multiconf() -> Tree:
             Tree(
                 "molecule_op",
                 [
-                    Token("IDENTIFIER", "2kw3.pdb"),
+                    Token("IDENTIFIER", "2k3w.pdb"),
                     Selection(name="vps4", selection=[("protein",), ("and", "chain", "A")], type="selection"),
                     Selection(name="chmp6", selection=[("protein",), ("and", "chain", "B")], type="selection"),
                 ],
@@ -236,9 +236,9 @@ def test_engine_director_multiconf(steps_multiconf):
 
     data_builder.assert_has_calls(
         [
-            call.read_molecule("2kw3.pdb"),
-            call.assign_selection("vps4", [("protein",), ("and", "chain", "A")], "2kw3.pdb"),
-            call.assign_selection("chmp6", [("protein",), ("and", "chain", "B")], "2kw3.pdb"),
+            call.read_molecule("2k3w.pdb"),
+            call.assign_selection("vps4", [("protein",), ("and", "chain", "A")], "2k3w.pdb"),
+            call.assign_selection("chmp6", [("protein",), ("and", "chain", "B")], "2k3w.pdb"),
             call.set_interactions(["all"]),
             call.set_ionizable("positive", "true"),
             call.set_ionizable("negative", "true"),

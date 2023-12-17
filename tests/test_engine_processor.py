@@ -25,10 +25,10 @@ def spike_7u0n():
 
 
 @pytest.fixture
-def vps4_2kw3():
+def vps4_2k3w():
     base_path = Path(__file__).parent
 
-    with open(base_path / "data/vps4-chmp6-2kw3.txt") as reader:
+    with open(base_path / "data/vps4-chmp6-2k3w.txt") as reader:
         text = reader.read()
         return processor.parser(text)
 
@@ -48,10 +48,10 @@ def spike_transformed(spike_7u0n):
 
 
 @pytest.fixture
-def vps_transformed(vps4_2kw3):
+def vps_transformed(vps4_2k3w):
     instruction_transformer = processor.InstructionTransformer()
 
-    return instruction_transformer.transform(vps4_2kw3)
+    return instruction_transformer.transform(vps4_2k3w)
 
 
 def count_instruction(tree: Tree, data: str):
@@ -60,8 +60,8 @@ def count_instruction(tree: Tree, data: str):
     return len(instruction_list)
 
 
-def test_instruction_count(n1_5nzn, spike_7u0n, vps4_2kw3):
-    trees = [n1_5nzn, spike_7u0n, vps4_2kw3]
+def test_instruction_count(n1_5nzn, spike_7u0n, vps4_2k3w):
+    trees = [n1_5nzn, spike_7u0n, vps4_2k3w]
 
     select_count = [count_instruction(tree, "assign_selection") for tree in trees]
     bond_correction_count = [count_instruction(tree, "bond_correction") for tree in trees]
