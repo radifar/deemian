@@ -1,7 +1,16 @@
 import pandas as pd
 from rdkit.Chem import AllChem as Chem
 
-from deemian.chem.utility import dataframe_to_pdb_block
+from deemian.chem.utility import dataframe_to_pdb_block, flatten_atom_list
+
+
+def test_flatten_atom_list():
+    test_list = [[1, 2, 3], [4, 5, 6], [1, 10, 12]]
+    expected_list = [1, 2, 3, 4, 5, 6, 10, 12]
+
+    result_list = flatten_atom_list(test_list)
+
+    assert result_list == expected_list
 
 
 def test_dataframe_to_pdb_block():

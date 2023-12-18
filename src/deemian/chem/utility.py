@@ -1,4 +1,10 @@
+from itertools import chain
+
 import pandas as pd
+
+
+def flatten_atom_list(nested_list_of_atoms):
+    return list(set(chain.from_iterable(nested_list_of_atoms)))
 
 
 def dataframe_to_pdb_block(df: pd.DataFrame) -> str:
