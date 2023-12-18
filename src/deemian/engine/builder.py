@@ -42,7 +42,7 @@ class DeemianDataBuilder:
 
         mol = Chem.MolFromPDBBlock(mol_pdb_block)
         template_mol = Chem.MolFromSmiles(template)
-        mol = Chem.AssignBondOrdersFromTemplate(mol, template_mol)
+        mol = Chem.AssignBondOrdersFromTemplate(template_mol, mol)
         self.deemian_data.molecule_dataframe[name] = mol_to_dataframe(mol)
 
     def set_interactions(self, interactions: list[str]):

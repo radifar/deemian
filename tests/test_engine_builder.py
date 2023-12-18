@@ -79,7 +79,7 @@ def test_deemian_data_builder_correct_bond(builder):
 
                         df_to_pdb_block.assert_called_once_with("oseltamivir_df:pd.DataFrame")
                         assign_bond_order.assert_called_once_with(
-                            "oseltamivir_mol:rdkit.Chem.rdchem.Mol", "template_mol:rdkit.Chem.rdchem.Mol"
+                            "template_mol:rdkit.Chem.rdchem.Mol", "oseltamivir_mol:rdkit.Chem.rdchem.Mol"
                         )
 
                         assert (
