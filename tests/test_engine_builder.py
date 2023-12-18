@@ -26,7 +26,7 @@ def test_deemian_data():
     assert deemian_data.readable_output == {}
 
 
-def test_deemian_data_builder_molecule_reader(builder):
+def test_deemian_data_builder_read_molecule(builder):
     with patch.object(Chem, "MolFromPDBFile") as mol_from_pdb:
         with patch("deemian.engine.builder.mol_to_dataframe") as mol_to_df:
             mol_from_pdb.return_value = "rdkit.Chem.rdchem.Mol"
@@ -42,7 +42,7 @@ def test_deemian_data_builder_molecule_reader(builder):
             assert deemian_data.molecule_dataframe[mol_filename] == "pd.DataFrame"
 
 
-def test_deemian_data_builder_molecule_selection(builder):
+def test_deemian_data_builder_assign_selection(builder):
     with patch("deemian.engine.builder.mol_dataframe_selection") as mds:
         mds.return_value = "selected_df:pd.DataFrame"
         deemian_data = builder.generate_deemian_data()
@@ -81,7 +81,7 @@ def test_deemian_data_builder_measure(builder):
     assert interaction_results == "protein_ligand"
 
 
-def test_deemian_data_builder_measure_conf_range(builder):
+def test_deemian_data_builder_measure_conformation_range(builder):
     builder.set_conformation_range("1", "10")
 
     deemian_data = builder.generate_deemian_data()
