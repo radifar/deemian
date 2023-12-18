@@ -53,12 +53,39 @@ def test_deemian_data_builder_assign_selection(builder):
         mol_filename = "5nzn.pdb"
 
         builder.assign_selection(name, selection, mol_filename)
-        correct_bond = builder.correct_bond("oseltamivir", "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O")
 
         mds.assert_called_once_with(selection, "n1_df:pd.DataFrame")
         assert deemian_data.molecule_dataframe["protein_A"] == "selected_df:pd.DataFrame"
         assert deemian_data.selections["protein_A"] == ["5nzn.pdb", ("chain", "A"), ("and", "protein")]
-        assert correct_bond == ("oseltamivir", "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O")
+
+
+def test_deemian_data_builder_correct_bond(builder):
+    with patch("deemian.engine.builder.dataframe_to_pdb_block") as df_to_pdb_block:
+        with patch.object(Chem, "MolFromPDBBlock") as mol_from_pdb:
+            with patch.object(Chem, "MolFromSmiles") as mol_from_smiles:
+                with patch.object(Chem, "AssignBondOrdersFromTemplate") as assign_bond_order:
+                    with patch("deemian.engine.builder.mol_to_dataframe") as mol_to_df:
+                        df_to_pdb_block.return_value = "oseltamivir_pdb_block:str"
+                        mol_from_pdb.return_value = "oseltamivir_mol:rdkit.Chem.rdchem.Mol"
+
+                        mol_from_smiles.return_value = "template_mol:rdkit.Chem.rdchem.Mol"
+                        assign_bond_order.return_value = "oseltamivir_corrected:rdkit.Chem.rdchem.Mol"
+                        mol_to_df.return_value = "oseltamivir_corrected_df:pd.DataFrame"
+
+                        deemian_data = builder.generate_deemian_data()
+                        deemian_data.molecule_dataframe["oseltamivir"] = "oseltamivir_df:pd.DataFrame"
+
+                        builder.correct_bond("oseltamivir", "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O")
+
+                        df_to_pdb_block.assert_called_once_with("oseltamivir_df:pd.DataFrame")
+                        assign_bond_order.assert_called_once_with(
+                            "oseltamivir_mol:rdkit.Chem.rdchem.Mol", "template_mol:rdkit.Chem.rdchem.Mol"
+                        )
+
+                        assert (
+                            deemian_data.molecule_dataframe["oseltamivir"] == "oseltamivir_corrected_df:pd.DataFrame"
+                        )
+                        assert deemian_data.molecule_pdb_block["oseltamivir"] == "oseltamivir_pdb_block:str"
 
 
 def test_deemian_data_builder_measure(builder):
