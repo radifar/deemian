@@ -4,11 +4,13 @@ from rdkit.Chem import AllChem as Chem
 
 from deemian.chem.reader import mol_to_dataframe
 from deemian.chem.selection import mol_dataframe_selection
+from deemian.chem.utility import dataframe_to_pdb_block
 
 
 @dataclass
 class DeemianData:
-    molecules: dict = field(default_factory=lambda: {})
+    molecule_dataframe: dict = field(default_factory=lambda: {})
+    molecule_pdb_block: dict = field(default_factory=lambda: {})
     selections: dict = field(default_factory=lambda: {})
     interactions: list = field(default_factory=lambda: [])
     ionizable: dict = field(default_factory=lambda: {"positive": False, "negative": False})
@@ -25,16 +27,23 @@ class DeemianDataBuilder:
     def read_molecule(self, mol_filename: str):
         mol = Chem.MolFromPDBFile(mol_filename, removeHs=False)
         mol_df = mol_to_dataframe(mol)
-        self.deemian_data.molecules[mol_filename] = mol_df
+        self.deemian_data.molecule_dataframe[mol_filename] = mol_df
 
     def assign_selection(self, name: str, selection: list[tuple], mol_filename: str):
-        mol_df = self.deemian_data.molecules[mol_filename]
-        self.deemian_data.molecules[name] = mol_dataframe_selection(selection, mol_df)
+        mol_df = self.deemian_data.molecule_dataframe[mol_filename]
+        self.deemian_data.molecule_dataframe[name] = mol_dataframe_selection(selection, mol_df)
         selection.insert(0, mol_filename)
         self.deemian_data.selections[name] = selection
 
     def correct_bond(self, name: str, template: str):
-        return (name, template)
+        mol_df = self.deemian_data.molecule_dataframe[name]
+        mol_pdb_block = dataframe_to_pdb_block(mol_df)
+        self.deemian_data.molecule_pdb_block[name] = mol_pdb_block
+
+        mol = Chem.MolFromPDBBlock(mol_pdb_block)
+        template_mol = Chem.MolFromSmiles(template)
+        mol = Chem.AssignBondOrdersFromTemplate(template_mol, mol)
+        self.deemian_data.molecule_dataframe[name] = mol_to_dataframe(mol)
 
     def set_interactions(self, interactions: list[str]):
         self.deemian_data.interactions = interactions
