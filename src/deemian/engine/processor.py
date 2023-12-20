@@ -80,7 +80,8 @@ class InstructionTransformer(Transformer):
         return self.InteractingSubject(subject_1, subject_2, name)
 
     def conformation(self, args):
-        return self.Conformation(args[0].value)
+        conformation_list = [int(arg.value) for arg in args]
+        return self.Conformation(conformation_list)
 
     def conformation_range(self, args):
         return self.ConformationRange(args[0].value, args[1].value)

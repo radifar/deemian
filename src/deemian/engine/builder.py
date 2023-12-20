@@ -1,5 +1,7 @@
+from collections import defaultdict
 from dataclasses import dataclass, field
 
+import pandas as pd
 from rdkit.Chem import AllChem as Chem
 
 from deemian.chem.reader import mol_to_dataframe
@@ -8,70 +10,75 @@ from deemian.chem.utility import dataframe_to_pdb_block
 
 
 @dataclass
-class DeemianData:
-    molecule_dataframe: dict = field(default_factory=lambda: {})
-    molecule_pdb_block: dict = field(default_factory=lambda: {})
-    selections: dict = field(default_factory=lambda: {})
+class Molecule:
+    rdkit_mol: Chem.rdchem.Mol
+    mol_dataframe: pd.DataFrame = None
+
+
+@dataclass
+class Selection:
+    mol_parent: str
+    mol_dataframe: pd.DataFrame
+    mol_pdb_block: str = None
+
+
+@dataclass
+class Measurement:
     interactions: list = field(default_factory=lambda: [])
     ionizable: dict = field(default_factory=lambda: {"positive": False, "negative": False})
     interacting_subjects: dict = field(default_factory=lambda: {})
     conformation: list = field(default_factory=lambda: [])
-    interaction_details: dict = field(default_factory=lambda: {})
-    readable_output: dict = field(default_factory=lambda: {})
 
-
-class DeemianDataBuilder:
-    def __init__(self, deemian_data: DeemianData) -> None:
-        self.deemian_data = deemian_data
-
-    def read_molecule(self, mol_filename: str):
-        mol = Chem.MolFromPDBFile(mol_filename, removeHs=False)
-        mol_df = mol_to_dataframe(mol)
-        self.deemian_data.molecule_dataframe[mol_filename] = mol_df
-
-    def assign_selection(self, name: str, selection: list[tuple], mol_filename: str):
-        mol_df = self.deemian_data.molecule_dataframe[mol_filename]
-        self.deemian_data.molecule_dataframe[name] = mol_dataframe_selection(selection, mol_df)
-        selection.insert(0, mol_filename)
-        self.deemian_data.selections[name] = selection
-
-    def correct_bond(self, name: str, template: str):
-        mol_df = self.deemian_data.molecule_dataframe[name]
-        mol_pdb_block = dataframe_to_pdb_block(mol_df)
-        self.deemian_data.molecule_pdb_block[name] = mol_pdb_block
-
-        mol = Chem.MolFromPDBBlock(mol_pdb_block)
-        template_mol = Chem.MolFromSmiles(template)
-        mol = Chem.AssignBondOrdersFromTemplate(template_mol, mol)
-        self.deemian_data.molecule_dataframe[name] = mol_to_dataframe(mol)
-
-    def set_interactions(self, interactions: list[str]):
-        self.deemian_data.interactions = interactions
+    def conformation_range(self, start, end):
+        self.conformation = list(range(int(start), int(end) + 1))
 
     def set_ionizable(self, charge: str, boolean: str):
         if boolean == "true":
             boolean = True
         elif boolean == "false":
             boolean = False
-        self.deemian_data.ionizable[charge] = boolean
+        self.ionizable[charge] = boolean
 
-    def set_interacting_subjects(self, subject_1: str, subject_2: str, name: str):
-        self.deemian_data.interacting_subjects[name] = (subject_1, subject_2)
 
-    def set_conformation(self, number: str):
-        self.deemian_data.conformation = [int(number)]
+@dataclass
+class DeemianData:
+    molecule: dict[str, Molecule] = field(default_factory=lambda: {})
+    selection: dict[str, Selection] = field(default_factory=lambda: {})
+    measurement: dict[str, Measurement] = field(default_factory=lambda: defaultdict(Measurement))
+    interaction_details: dict = field(default_factory=lambda: {})
+    readable_output: dict = field(default_factory=lambda: {})
 
-    def set_conformation_range(self, start: str, end: str):
-        self.deemian_data.conformation = list(range(int(start), int(end) + 1))
+    def add_molecule(self, name):
+        mol = Chem.MolFromPDBFile(name, removeHs=False)
+        mol_df = mol_to_dataframe(mol)
+        self.molecule[name] = Molecule(mol, mol_df)
 
-    def calculate_interactions(self, measurement_identifier: str):
-        return measurement_identifier
+    def add_selection(self, name, selection, mol_parent):
+        parent_df = self.molecule[mol_parent].mol_dataframe
+        selection_df = mol_dataframe_selection(selection, parent_df)
 
-    def write_readable_output(self, out_file: str, presentation_identifier: str):
-        return (out_file, presentation_identifier)
+        self.selection[name] = Selection(mol_parent, selection_df)
 
-    def write_deemian_data(self, out_file: str, presentation_identifier: str):
-        return (out_file, presentation_identifier)
+    def correct_bond(self, name, template):
+        selection_df = self.selection[name].mol_dataframe
+        selection_pdb_block = dataframe_to_pdb_block(selection_df)
+        selection_mol = Chem.MolFromPDBBlock(selection_pdb_block)
 
-    def generate_deemian_data(self):
-        return self.deemian_data
+        template_mol = Chem.MolFromSmiles(template)
+        corrected_mol = Chem.AssignBondOrdersFromTemplate(template_mol, selection_mol)
+        corrected_df = mol_to_dataframe(corrected_mol)
+
+        self.molecule[name] = Molecule(corrected_mol)
+        self.selection[name] = Selection(name, corrected_df, selection_pdb_block)
+
+    def add_measurement(self, name):
+        return self.measurement[name]
+
+    def calculate_interactions(self):
+        return 1
+
+    def write_readable_output(self, out_file: str, presentation_id: str):
+        return (out_file, presentation_id)
+
+    def write_deemian_data(self, out_file: str, presentation_id: str):
+        return (out_file, presentation_id)

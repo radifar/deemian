@@ -1,5 +1,5 @@
 from collections import namedtuple
-from unittest.mock import Mock, call
+from unittest.mock import MagicMock, call
 
 from lark import Token, Tree
 import pytest
@@ -53,7 +53,7 @@ def steps_simple() -> Tree:
                         name="protein_A:oseltamivir",
                         type="interacting_subject",
                     ),
-                    Conformation(number="1", type="conformation"),
+                    Conformation(number=[1], type="conformation"),
                 ],
             ),
             Tree(
@@ -177,21 +177,24 @@ def steps_multiconf() -> Tree:
 
 
 def test_engine_director_simple(steps_simple):
-    data_builder = Mock()
+    data_builder = MagicMock()
     director(steps_simple, data_builder)
 
     data_builder.assert_has_calls(
         [
-            call.read_molecule("5nzn.pdb"),
-            call.assign_selection("protein_A", [("chain", "A"), ("and", "protein")], "5nzn.pdb"),
-            call.assign_selection("oseltamivir", [("chain", "A"), ("and", "resname", "G39")], "5nzn.pdb"),
+            call.add_molecule("5nzn.pdb"),
+            call.add_selection("protein_A", [("chain", "A"), ("and", "protein")], "5nzn.pdb"),
+            call.add_selection("oseltamivir", [("chain", "A"), ("and", "resname", "G39")], "5nzn.pdb"),
             call.correct_bond("oseltamivir", "CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O"),
-            call.set_interactions(["all"]),
-            call.set_ionizable("positive", "true"),
-            call.set_ionizable("negative", "true"),
-            call.set_interacting_subjects("protein_A", "oseltamivir", "protein_A:oseltamivir"),
-            call.set_conformation("1"),
-            call.calculate_interactions("protein_ligand"),
+            call.add_measurement("protein_ligand"),
+            call.add_measurement().interactions.extend(["all"]),
+            call.add_measurement().set_ionizable("positive", "true"),
+            call.add_measurement().set_ionizable("negative", "true"),
+            call.add_measurement().interacting_subjects.__setitem__(
+                "protein_A:oseltamivir", ("protein_A", "oseltamivir")
+            ),
+            call.add_measurement().conformation.extend([1]),
+            call.calculate_interactions(),
             call.write_readable_output("protein_ligand.txt", "protein_ligand"),
             call.write_deemian_data("protein_ligand.db", "protein_ligand"),
         ]
@@ -199,31 +202,34 @@ def test_engine_director_simple(steps_simple):
 
 
 def test_engine_director_multiselect(steps_multiselect):
-    data_builder = Mock()
+    data_builder = MagicMock()
     director(steps_multiselect, data_builder)
 
     data_builder.assert_has_calls(
         [
-            call.read_molecule("7u0n.pdb"),
-            call.assign_selection(
+            call.add_molecule("7u0n.pdb"),
+            call.add_selection(
                 "ace2_hotspot31", [("chain", "A"), ("and", "protein"), ("and", "resid_range", "1", "55")], "7u0n.pdb"
             ),
-            call.assign_selection(
+            call.add_selection(
                 "ace2_hotspot353",
                 [("chain", "A"), ("and", "protein"), ("and", "resid_range", "341", "364")],
                 "7u0n.pdb",
             ),
-            call.assign_selection(
+            call.add_selection(
                 "spike_rbm", [("chain", "E"), ("and", "protein"), ("and", "resid_range", "470", "510")], "7u0n.pdb"
             ),
-            call.set_interactions(["all"]),
-            call.set_ionizable("positive", "true"),
-            call.set_ionizable("negative", "true"),
-            call.set_interacting_subjects("spike_rbm", "ace2_hotspot31", "rbm_h31"),
-            call.set_interacting_subjects("spike_rbm", "ace2_hotspot353", "rbm_h353"),
-            call.set_interacting_subjects("ace2_hotspot31", "ace2_hotspot353", "internal_ace2"),
-            call.set_interacting_subjects("spike_rbm", "spike_rbm", "internal_rbm"),
-            call.calculate_interactions("ace2_spike_rbd"),
+            call.add_measurement("ace2_spike_rbd"),
+            call.add_measurement().interactions.extend(["all"]),
+            call.add_measurement().set_ionizable("positive", "true"),
+            call.add_measurement().set_ionizable("negative", "true"),
+            call.add_measurement().interacting_subjects.__setitem__("rbm_h31", ("spike_rbm", "ace2_hotspot31")),
+            call.add_measurement().interacting_subjects.__setitem__("rbm_h353", ("spike_rbm", "ace2_hotspot353")),
+            call.add_measurement().interacting_subjects.__setitem__(
+                "internal_ace2", ("ace2_hotspot31", "ace2_hotspot353")
+            ),
+            call.add_measurement().interacting_subjects.__setitem__("internal_rbm", ("spike_rbm", "spike_rbm")),
+            call.calculate_interactions(),
             call.write_readable_output("ace2_spike_rbd_detailed.txt", "ace2_spike_rbd"),
             call.write_deemian_data("ace2_spike_rbd_detailed.db", "ace2_spike_rbd"),
         ]
@@ -231,20 +237,21 @@ def test_engine_director_multiselect(steps_multiselect):
 
 
 def test_engine_director_multiconf(steps_multiconf):
-    data_builder = Mock()
+    data_builder = MagicMock()
     director(steps_multiconf, data_builder)
 
     data_builder.assert_has_calls(
         [
-            call.read_molecule("2k3w.pdb"),
-            call.assign_selection("vps4", [("protein",), ("and", "chain", "A")], "2k3w.pdb"),
-            call.assign_selection("chmp6", [("protein",), ("and", "chain", "B")], "2k3w.pdb"),
-            call.set_interactions(["all"]),
-            call.set_ionizable("positive", "true"),
-            call.set_ionizable("negative", "true"),
-            call.set_interacting_subjects("vps4", "chmp6", "vps4:chmp6"),
-            call.set_conformation_range("1", "20"),
-            call.calculate_interactions("vps4_chmp6"),
+            call.add_molecule("2k3w.pdb"),
+            call.add_selection("vps4", [("protein",), ("and", "chain", "A")], "2k3w.pdb"),
+            call.add_selection("chmp6", [("protein",), ("and", "chain", "B")], "2k3w.pdb"),
+            call.add_measurement("vps4_chmp6"),
+            call.add_measurement().interactions.extend(["all"]),
+            call.add_measurement().set_ionizable("positive", "true"),
+            call.add_measurement().set_ionizable("negative", "true"),
+            call.add_measurement().interacting_subjects.__setitem__("vps4:chmp6", ("vps4", "chmp6")),
+            call.add_measurement().conformation_range("1", "20"),
+            call.calculate_interactions(),
             call.write_readable_output("vps4_chmp6.txt", "vps4_chmp6"),
             call.write_deemian_data("vps4_chmp6.db", "vps4_chmp6"),
         ]
