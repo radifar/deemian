@@ -10,4 +10,4 @@ def test_mol_to_dataframe():
 
     assert mol_df.shape == (27933, 6)
     assert mol_df.index.name == "atom_id"
-    assert df_column == ["chain_id", "atom_symbol", "atom_name", "residue_number", "residue_name", "conf_0"]
+    assert df_column == ["chain_id", "atom_symbol", "atom_name", "residue_number", "residue_name", "conf_1"]
