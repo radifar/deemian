@@ -1,62 +1,52 @@
 from lark import Tree
 
-from deemian.engine.builder import DeemianDataBuilder
+from deemian.engine.builder import DeemianData
 
 
-def director(steps: Tree, data_builder: DeemianDataBuilder):
+def director(steps: Tree, data: DeemianData):
     for step in steps.children:
         if step.data == "molecule_op":
-            molecule_op_instructions = step.children
-            mol_filename = molecule_op_instructions[0].value
-            data_builder.read_molecule(mol_filename)
+            instructions = step.children
+            mol_filename = instructions.pop(0).value
+            data.add_molecule(mol_filename)
 
-            for instruction in molecule_op_instructions[1:]:
-                if instruction.type == "selection":
-                    name = instruction.name
-                    selection = instruction.selection
-                    data_builder.assign_selection(name, selection, mol_filename)
+            for inst in instructions:
+                if inst.type == "selection":
+                    data.add_selection(inst.name, inst.selection, mol_filename)
 
-                elif instruction.type == "bond_correction":
-                    name = instruction.name
-                    template = instruction.template
-                    data_builder.correct_bond(name, template)
+                elif inst.type == "bond_correction":
+                    data.correct_bond(inst.name, inst.template)
 
         elif step.data == "measurement":
-            measurement_instructions = step.children
-            measure_identifier = measurement_instructions[0].value
+            instructions = step.children
+            measurement_id = instructions.pop(0).value
+            measurement = data.add_measurement(measurement_id)
 
-            for instruction in measurement_instructions[1:]:
-                if instruction.type == "interaction_list":
-                    data_builder.set_interactions(instruction.interactions)
+            for inst in instructions:
+                if inst.type == "interaction_list":
+                    measurement.interactions.extend(inst.interactions)
 
-                elif instruction.type == "include_ionizable":
-                    charge = instruction.charge
-                    boolean = instruction.boolean
-                    data_builder.set_ionizable(charge, boolean)
+                elif inst.type == "include_ionizable":
+                    measurement.set_ionizable(inst.charge, inst.boolean)
 
-                elif instruction.type == "interacting_subject":
-                    subject_1 = instruction.subject_1
-                    subject_2 = instruction.subject_2
-                    name = instruction.name
-                    data_builder.set_interacting_subjects(subject_1, subject_2, name)
+                elif inst.type == "interacting_subject":
+                    measurement.interacting_subjects[inst.name] = (inst.subject_1, inst.subject_2)
 
-                elif instruction.type == "conformation":
-                    data_builder.set_conformation(instruction.number)
+                elif inst.type == "conformation":
+                    measurement.conformation.extend(inst.number)
 
-                elif instruction.type == "conformation_range":
-                    start = instruction.start
-                    end = instruction.end
-                    data_builder.set_conformation_range(start, end)
+                elif inst.type == "conformation_range":
+                    measurement.conformation_range(inst.start, inst.end)
 
-            else:
-                data_builder.calculate_interactions(measure_identifier)
+            data.calculate_interactions(measurement_id)
+
         elif step.data == "presentation":
-            presentation_instructions = step.children
-            presentation_identifier = presentation_instructions[0].value
+            instructions = step.children
+            presentation_id = instructions.pop(0).value
 
-            for instruction in presentation_instructions[1:]:
-                if instruction.type == "readable_output":
-                    data_builder.write_readable_output(instruction.out_file, presentation_identifier)
+            for inst in instructions:
+                if inst.type == "readable_output":
+                    data.write_readable_output(inst.out_file, presentation_id)
 
-                elif instruction.type == "deemian_data":
-                    data_builder.write_deemian_data(instruction.out_file, presentation_identifier)
+                elif inst.type == "deemian_data":
+                    data.write_deemian_data(inst.out_file, presentation_id)

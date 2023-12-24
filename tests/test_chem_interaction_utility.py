@@ -1,7 +1,7 @@
 import pytest
 from rdkit.Chem import AllChem as Chem
 
-from deemian.chem.interactions import filter_charge
+from deemian.chem.interaction_utility import filter_charge, generate_pair_info
 
 
 @pytest.mark.parametrize(
@@ -60,3 +60,29 @@ def test_filter_charge_keyerror():
         mol = Chem.MolFromSmiles("CC(=O)NCCCS(O)(=O)=O")
         filter_charge(mol, "cation")
     assert str(e_info.value) == "'Error: filtering mode cation is not recognized'"
+
+
+def test_generate_pair_info(n1, oseltamivir_corrected, n1_protein_A, oseltamivir_corrected_df):
+    g39_all_cation = filter_charge(oseltamivir_corrected, "all_cation")
+    g39_all_anion = filter_charge(oseltamivir_corrected, "all_anion")
+    n1_all_cation = filter_charge(n1, "all_cation")
+    n1_all_anion = filter_charge(n1, "all_anion")
+
+    exclude_atom = ["C", "N", "S", "P"]
+    cation_1_df = oseltamivir_corrected_df[oseltamivir_corrected_df.index.isin(g39_all_cation)]
+    anion_1_df = oseltamivir_corrected_df[
+        oseltamivir_corrected_df.index.isin(g39_all_anion)
+        & ~oseltamivir_corrected_df["atom_symbol"].isin(exclude_atom)
+    ]
+    cation_2_df = n1_protein_A[n1_protein_A.index.isin(n1_all_cation)]
+    anion_2_df = n1_protein_A[n1_protein_A.index.isin(n1_all_anion) & ~n1_protein_A["atom_symbol"].isin(exclude_atom)]
+
+    anion_nearby = [[4, 5, 10]]
+    cation_nearby = [[9, 10, 11, 84, 85, 86], [59, 60, 61, 84, 85, 86]]
+    pair_info_as_cation = generate_pair_info(anion_nearby, cation_1_df, anion_2_df, 1, "electrostatic")
+    pair_info_as_anion = generate_pair_info(cation_nearby, anion_1_df, cation_2_df, 1, "electrostatic")
+
+    assert pair_info_as_cation.shape == (3, 17)
+    assert pair_info_as_anion.shape == (12, 17)
+    assert bool((pair_info_as_cation["distance"] < 4.5).all()) is True
+    assert bool((pair_info_as_anion["distance"] < 4.5).all()) is True

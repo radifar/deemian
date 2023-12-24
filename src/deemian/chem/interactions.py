@@ -1,43 +1,63 @@
+from dataclasses import dataclass
+
+import pandas as pd
 from rdkit.Chem import AllChem as Chem
+from scipy.spatial import KDTree
 
-from deemian.chem.utility import flatten_atom_list
+from deemian.chem.interaction_utility import filter_charge, generate_pair_info
 
 
-def filter_charge(mol: Chem.rdchem.Mol, mode: str) -> list[int]:
-    apparent_cation = ["[$([*+1,*+2,*+3]);!$([N+]-[O-])]", "[NX3&!$([NX3]-O)]-[C]=[NX3+]"]
-    apparent_anion = ["O=[C,S,N,P]-[O-]", "[*-1,*-2]"]
-    apparent_cation = [Chem.MolFromSmarts(p) for p in apparent_cation]  # p for pattern
-    apparent_anion = [Chem.MolFromSmarts(p) for p in apparent_anion]
+@dataclass
+class InteractionData:
+    subject_1_mol: Chem.rdchem.Mol
+    subject_2_mol: Chem.rdchem.Mol
+    subject_1_df: pd.DataFrame
+    subject_2_df: pd.DataFrame
+    conformation: list
+    electrostatic_s1_as_cation: pd.DataFrame = None
+    electrostatic_s1_as_anion: pd.DataFrame = None
 
-    potential_cation = [
-        "[$([N;H2&+0][C;!$(C=*)]);!$(N[a])]",
-        "[$([N;H1&+0]([C;!$(C=*)])[C;!$(C=*)]);!$(N[a])]",
-        "[$([N;H0&+0]([C;!$(C=*)])([C;!$(C=*)])[C;!$(C=*)]);!$(N[a])]",
-        "NC(=N)",
-        "[n;R1]1[c;R1][n;R1][c;R1][c;R1]1",
-    ]
-    potential_anion = ["O=[C,S,N,P]-[OH,O-]"]
-    potential_cation = [Chem.MolFromSmarts(p) for p in potential_cation]
-    potential_anion = [Chem.MolFromSmarts(p) for p in potential_anion]
+    def calculate_electrostatic(self, positive: bool, negative: bool):
+        cation_mode = "all_cation" if positive else "apparent_cation"
+        anion_mode = "all_anion" if negative else "apparent_anion"
 
-    all_cation = apparent_cation + potential_cation
-    all_anion = apparent_anion + potential_anion
+        cation_1_ids = filter_charge(self.subject_1_mol, cation_mode)
+        anion_1_ids = filter_charge(self.subject_1_mol, anion_mode)
+        cation_2_ids = filter_charge(self.subject_2_mol, cation_mode)
+        anion_2_ids = filter_charge(self.subject_2_mol, anion_mode)
 
-    filter_dictionary = dict(
-        apparent_cation=apparent_cation,
-        apparent_anion=apparent_anion,
-        potential_cation=potential_cation,
-        potential_anion=potential_anion,
-        all_cation=all_cation,
-        all_anion=all_anion,
-    )
+        df1 = self.subject_1_df
+        df2 = self.subject_2_df
+        exclude_atom = ["C", "N", "S", "P"]
+        cation_1_df = df1[df1.index.isin(cation_1_ids)]
+        anion_1_df = df1[df1.index.isin(anion_1_ids) & ~df1["atom_symbol"].isin(exclude_atom)]
+        cation_2_df = df2[df2.index.isin(cation_2_ids)]
+        anion_2_df = df2[df2.index.isin(anion_2_ids) & ~df2["atom_symbol"].isin(exclude_atom)]
 
-    combined_match = []
-    try:
-        for pattern in filter_dictionary[mode]:
-            matched = flatten_atom_list(mol.GetSubstructMatches(pattern))
-            combined_match.append(matched)
-    except KeyError:
-        raise KeyError(f"Error: filtering mode {mode} is not recognized")
+        for conf_num in self.conformation:
+            conformation_column = "conf_" + str(conf_num)
 
-    return flatten_atom_list(combined_match)
+            if (not cation_1_df.empty) and (not anion_2_df.empty):
+                print(cation_1_df.empty, anion_2_df.empty)
+                cation_1_tree = KDTree(cation_1_df[conformation_column].to_list())
+                anion_2_tree = KDTree(anion_2_df[conformation_column].to_list())
+
+                s1_as_cation = cation_1_tree.query_ball_tree(anion_2_tree, 4.5)
+
+                self.electrostatic_s1_as_cation = generate_pair_info(
+                    s1_as_cation, cation_1_df, anion_2_df, conf_num, "electrostatic_cation"
+                )
+            else:
+                self.electrostatic_s1_as_cation = pd.DataFrame()
+
+            if (not cation_2_df.empty) and (not anion_1_df.empty):
+                cation_2_tree = KDTree(cation_2_df[conformation_column].to_list())
+                anion_1_tree = KDTree(anion_1_df[conformation_column].to_list())
+
+                s1_as_anion = anion_1_tree.query_ball_tree(cation_2_tree, 4.5)
+
+                self.electrostatic_s1_as_anion = generate_pair_info(
+                    s1_as_anion, anion_1_df, cation_2_df, conf_num, "electrostatic_anion"
+                )
+            else:
+                self.electrostatic_s1_as_anion = pd.DataFrame()

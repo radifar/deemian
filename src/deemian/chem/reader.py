@@ -32,7 +32,7 @@ def mol_to_dataframe(mol):
     # note: using pyarrow for list of float making it slower for 'to_list' conversion,
     #       the scipy's KDTree require list of list as the input.
     for index, conformer in enumerate(mol.GetConformers()):
-        coordinate_number = "conf_" + str(index)
+        coordinate_number = "conf_" + str(index + 1)
         mol_record[coordinate_number] = list(conformer.GetPositions())
 
     return pd.DataFrame(mol_record).set_index("atom_id")

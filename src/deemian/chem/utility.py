@@ -11,7 +11,7 @@ def dataframe_to_pdb_block(df: pd.DataFrame) -> str:
     df_noh = df[df["atom_symbol"] != "H"]
     # from https://stackoverflow.com/questions/35491274/split-a-pandas-column-of-lists-into-multiple-columns
 
-    df_pdb = pd.DataFrame(df_noh["conf_0"].to_list(), columns=["x", "y", "z"])
+    df_pdb = pd.DataFrame(df_noh["conf_1"].to_list(), columns=["x", "y", "z"])
     df_pdb.index = df_noh.index
     df_pdb = df_pdb.join(df_noh).reset_index()
     df_pdb["record_type"] = "HETATM"

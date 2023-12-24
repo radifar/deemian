@@ -8,7 +8,7 @@ measure protein_ligand [
 	interactions all
 	ionizable positive true
 	ionizable negative true
-	between protein_A and oseltamivir
+	between oseltamivir and protein_A
     conformation 1
 ]
 
