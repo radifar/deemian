@@ -1,3 +1,5 @@
+from unittest.mock import Mock, call, patch
+
 from deemian.engine.builder import Chem, DeemianData
 
 
@@ -51,20 +53,87 @@ def test_deemian_data_measurement():
     measurement.interactions.extend(["all"])
     measurement.set_ionizable("positive", "true")
     measurement.set_ionizable("negative", "false")
-    measurement.interacting_subjects["protein_A:oseltamivir"] = ("protein_A", "oseltamivir")
+    measurement.interacting_subjects["oseltamivir:protein_A"] = ("oseltamivir", "protein_A")
     measurement.conformation_range("1", "4")
     measurement.conformation.extend([5])
 
-    result = data.calculate_interactions()
+    with patch.object(data, "calculate_interactions", return_value=1):
+        result = data.calculate_interactions("protein_ligand")
 
     assert (
         repr(measurement)
         == """Measurement(interactions=['all'], \
 ionizable={'positive': True, 'negative': False}, \
-interacting_subjects={'protein_A:oseltamivir': ('protein_A', 'oseltamivir')}, \
+interacting_subjects={'oseltamivir:protein_A': ('oseltamivir', 'protein_A')}, \
 conformation=[1, 2, 3, 4, 5])"""
     )
     assert result == 1
+
+
+def test_deemian_data_calculate_interactions():
+    data = DeemianData()
+
+    data.molecule["5nzn.pdb"] = "neuraminidase:rdkitmol"
+
+    protein_A = Mock()
+    protein_A.mol_parent = "5nzn.pdb"
+    protein_A.mol_dataframe = "protein_A:pd.DataFrame"
+
+    oseltamivir = Mock()
+    oseltamivir.mol_parent = "5nzn.pdb"
+    oseltamivir.mol_dataframe = "oseltamivir:pd.DataFrame"
+
+    data.selection["protein_A"] = protein_A
+    data.selection["oseltamivir"] = oseltamivir
+
+    measurement = data.add_measurement("protein_ligand")
+    measurement.interactions.extend(["all"])
+    measurement.set_ionizable("positive", "true")
+    measurement.set_ionizable("negative", "true")
+    measurement.interacting_subjects["oseltamivir:protein_A"] = ("oseltamivir", "protein_A")
+    measurement.conformation.extend([1])
+
+    with patch("deemian.engine.builder.InteractionData") as int_data:
+        data.calculate_interactions("protein_ligand")
+        int_data.assert_has_calls(
+            [
+                call(
+                    "neuraminidase:rdkitmol",
+                    "neuraminidase:rdkitmol",
+                    "oseltamivir:pd.DataFrame",
+                    "protein_A:pd.DataFrame",
+                    [1],
+                ),
+                call().calculate_electrostatic(positive=True, negative=True),
+            ]
+        )
+
+
+def test_deemian_data_calculate_interactions_empty_conformation():
+    data = DeemianData()
+
+    data.molecule["5nzn.pdb"] = "neuraminidase:rdkitmol"
+
+    protein_A = Mock()
+    protein_A.mol_parent = "5nzn.pdb"
+    protein_A.mol_dataframe = "protein_A:pd.DataFrame"
+
+    oseltamivir = Mock()
+    oseltamivir.mol_parent = "5nzn.pdb"
+    oseltamivir.mol_dataframe = "oseltamivir:pd.DataFrame"
+
+    data.selection["protein_A"] = protein_A
+    data.selection["oseltamivir"] = oseltamivir
+
+    measurement = data.add_measurement("protein_ligand")
+    measurement.interactions.extend(["all"])
+    measurement.set_ionizable("positive", "true")
+    measurement.set_ionizable("negative", "true")
+    measurement.interacting_subjects["oseltamivir:protein_A"] = ("oseltamivir", "protein_A")
+
+    with patch("deemian.engine.builder.InteractionData") as int_data:
+        data.calculate_interactions("protein_ligand")
+        int_data.assert_called_once()
 
 
 def test_deemian_data_presentation():

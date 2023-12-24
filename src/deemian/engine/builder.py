@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 import pandas as pd
 from rdkit.Chem import AllChem as Chem
 
+from deemian.chem.interactions import InteractionData
 from deemian.chem.reader import mol_to_dataframe
 from deemian.chem.selection import mol_dataframe_selection
 from deemian.chem.utility import dataframe_to_pdb_block
@@ -71,11 +72,32 @@ class DeemianData:
         self.molecule[name] = Molecule(corrected_mol)
         self.selection[name] = Selection(name, corrected_df, selection_pdb_block)
 
-    def add_measurement(self, name):
-        return self.measurement[name]
+    def add_measurement(self, id):
+        return self.measurement[id]
 
-    def calculate_interactions(self):
-        return 1
+    def calculate_interactions(self, id):
+        measurement = self.measurement[id]
+
+        for pair in measurement.interacting_subjects:
+            subject_1, subject_2 = measurement.interacting_subjects[pair]
+            subject_1 = self.selection[subject_1]
+            subject_2 = self.selection[subject_2]
+            subject_1_mol = self.molecule[subject_1.mol_parent]
+            subject_2_mol = self.molecule[subject_2.mol_parent]
+            subject_1_df = subject_1.mol_dataframe
+            subject_2_df = subject_2.mol_dataframe
+            conformation = measurement.conformation
+            if not any(conformation):
+                conformation = [1]
+
+            interaction_data = InteractionData(subject_1_mol, subject_2_mol, subject_1_df, subject_2_df, conformation)
+
+            interaction_type = measurement.interactions
+
+            if ("electrostatic" in interaction_type) or ("all" in interaction_type):
+                interaction_data.calculate_electrostatic(**measurement.ionizable)
+
+            self.interaction_details[pair] = interaction_data
 
     def write_readable_output(self, out_file: str, presentation_id: str):
         return (out_file, presentation_id)

@@ -48,9 +48,9 @@ def steps_simple() -> Tree:
                     IncludeIonizable(charge="positive", boolean="true", type="include_ionizable"),
                     IncludeIonizable(charge="negative", boolean="true", type="include_ionizable"),
                     InteractingSubject(
-                        subject_1="protein_A",
-                        subject_2="oseltamivir",
-                        name="protein_A:oseltamivir",
+                        subject_1="oseltamivir",
+                        subject_2="protein_A",
+                        name="oseltamivir:protein_A",
                         type="interacting_subject",
                     ),
                     Conformation(number=[1], type="conformation"),
@@ -191,10 +191,10 @@ def test_engine_director_simple(steps_simple):
             call.add_measurement().set_ionizable("positive", "true"),
             call.add_measurement().set_ionizable("negative", "true"),
             call.add_measurement().interacting_subjects.__setitem__(
-                "protein_A:oseltamivir", ("protein_A", "oseltamivir")
+                "oseltamivir:protein_A", ("oseltamivir", "protein_A")
             ),
             call.add_measurement().conformation.extend([1]),
-            call.calculate_interactions(),
+            call.calculate_interactions("protein_ligand"),
             call.write_readable_output("protein_ligand.txt", "protein_ligand"),
             call.write_deemian_data("protein_ligand.db", "protein_ligand"),
         ]
@@ -229,7 +229,7 @@ def test_engine_director_multiselect(steps_multiselect):
                 "internal_ace2", ("ace2_hotspot31", "ace2_hotspot353")
             ),
             call.add_measurement().interacting_subjects.__setitem__("internal_rbm", ("spike_rbm", "spike_rbm")),
-            call.calculate_interactions(),
+            call.calculate_interactions("ace2_spike_rbd"),
             call.write_readable_output("ace2_spike_rbd_detailed.txt", "ace2_spike_rbd"),
             call.write_deemian_data("ace2_spike_rbd_detailed.db", "ace2_spike_rbd"),
         ]
@@ -251,7 +251,7 @@ def test_engine_director_multiconf(steps_multiconf):
             call.add_measurement().set_ionizable("negative", "true"),
             call.add_measurement().interacting_subjects.__setitem__("vps4:chmp6", ("vps4", "chmp6")),
             call.add_measurement().conformation_range("1", "20"),
-            call.calculate_interactions(),
+            call.calculate_interactions("vps4_chmp6"),
             call.write_readable_output("vps4_chmp6.txt", "vps4_chmp6"),
             call.write_deemian_data("vps4_chmp6.db", "vps4_chmp6"),
         ]

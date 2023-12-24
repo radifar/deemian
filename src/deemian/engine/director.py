@@ -38,7 +38,7 @@ def director(steps: Tree, data: DeemianData):
                 elif inst.type == "conformation_range":
                     measurement.conformation_range(inst.start, inst.end)
 
-            data.calculate_interactions()
+            data.calculate_interactions(measurement_id)
 
         elif step.data == "presentation":
             instructions = step.children

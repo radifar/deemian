@@ -1,37 +1,4 @@
-import pandas as pd
-import pytest
-
 from deemian.chem.selection import mol_dataframe_selection
-
-
-@pytest.fixture
-def n1_df():
-    """
-    Parquet file originated from 5nzn.pdb, protonated using Protoss.
-    Loaded with deemian.chem.reader.mol_to_dataframe saved using pyarrow engine
-    """
-
-    return pd.read_parquet("tests/data/5nzn.parquet.gzip")
-
-
-@pytest.fixture
-def spike_df():
-    """
-    Parquet file originated from 7u0n.pdb, protonated using Protoss.
-    Loaded with deemian.chem.reader.mol_to_dataframe saved using pyarrow engine
-    """
-
-    return pd.read_parquet("tests/data/5nzn.parquet.gzip")
-
-
-@pytest.fixture
-def vps4_df():
-    """
-    Parquet file originated from 2k3w.pdb without preparation (it is NMR solution structure)
-    Loaded with deemian.chem.reader.mol_to_dataframe saved using pyarrow engine
-    """
-
-    return pd.read_parquet("tests/data/2k3w.parquet.gzip")
 
 
 def test_mol_dataframe_selection(n1_df, spike_df, vps4_df):

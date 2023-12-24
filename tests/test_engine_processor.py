@@ -152,9 +152,9 @@ def test_measure_transform(n1_transformed, spike_transformed, vps_transformed):
     assert n1_ionizable2.charge == "negative"
     assert n1_ionizable2.boolean == "true"
     assert n1_ionizable2.type == "include_ionizable"
-    assert n1_interacting_subject.subject_1 == "protein_A"
-    assert n1_interacting_subject.subject_2 == "oseltamivir"
-    assert n1_interacting_subject.name == "protein_A:oseltamivir"
+    assert n1_interacting_subject.subject_1 == "oseltamivir"
+    assert n1_interacting_subject.subject_2 == "protein_A"
+    assert n1_interacting_subject.name == "oseltamivir:protein_A"
     assert n1_interacting_subject.type == "interacting_subject"
     assert n1_conformation.number == [1]
     assert n1_conformation.type == "conformation"
