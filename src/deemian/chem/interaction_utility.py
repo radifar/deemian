@@ -7,9 +7,17 @@ from deemian.chem.utility import flatten_atom_list
 
 def generate_pair_info(query_result, s1_df, s2_df, conformation, interaction_type):
     pair_info_df = pd.DataFrame()
+
+    conf = f"conf_{conformation}"
     for i, s2_list in enumerate(query_result):
-        s1 = s1_df.iloc[[i]].reset_index()
-        s2 = s2_df.iloc[s2_list].reset_index()
+        columns = ["atom_id", "chain_id", "atom_symbol", "atom_name", "residue_number", "residue_name", conf]
+
+        s1 = s1_df.iloc[[i]].reset_index()[columns]
+        s1.rename(columns={conf: "coord"}, inplace=True)
+
+        s2 = s2_df.iloc[s2_list].reset_index()[columns]
+        s2.rename(columns={conf: "coord"}, inplace=True)
+
         s2["atom_id_1"] = s1.iloc[0].atom_id
         pair = s1.merge(s2, left_on="atom_id", right_on="atom_id_1", suffixes=("_s1", "_s2")).drop(
             columns=["atom_id_1"]
@@ -18,9 +26,7 @@ def generate_pair_info(query_result, s1_df, s2_df, conformation, interaction_typ
 
     pair_info_df.reset_index(drop=True, inplace=True)
 
-    conf_1 = f"conf_{conformation}_s1"
-    conf_2 = f"conf_{conformation}_s2"
-    pair_info_df["distance"] = (pair_info_df[conf_1] - pair_info_df[conf_2]).map(dist)
+    pair_info_df["distance"] = (pair_info_df["coord_s1"] - pair_info_df["coord_s2"]).map(dist)
     pair_info_df["conformation"] = conformation
     pair_info_df["interaction_type"] = interaction_type
 

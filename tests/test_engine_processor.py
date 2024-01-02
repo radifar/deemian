@@ -72,7 +72,7 @@ def test_instruction_count(n1_5nzn, spike_7u0n, vps4_2k3w):
         count_instruction(tree, "interacting_subject_with_alias") for tree in trees
     ]
     conformation_range_count = [count_instruction(tree, "conformation_range") for tree in trees]
-    readable_output_count = [count_instruction(tree, "readable_output") for tree in trees]
+    interaction_output_count = [count_instruction(tree, "interaction_output") for tree in trees]
     deemian_data_count = [count_instruction(tree, "deemian_data") for tree in trees]
 
     assert select_count == [2, 3, 2]
@@ -82,7 +82,7 @@ def test_instruction_count(n1_5nzn, spike_7u0n, vps4_2k3w):
     assert interacting_subject_count == [1, 0, 1]
     assert interacting_subject_with_alias_count == [0, 4, 0]
     assert conformation_range_count == [0, 0, 1]
-    assert readable_output_count == [1, 1, 1]
+    assert interaction_output_count == [1, 1, 1]
     assert deemian_data_count == [1, 1, 1]
 
 
@@ -171,11 +171,11 @@ def test_measure_transform(n1_transformed, spike_transformed, vps_transformed):
 
 def test_present_transform(n1_transformed):
     n1_present = n1_transformed.children[2]
-    n1_readable_output = n1_present.children[1]
+    n1_interaction_output = n1_present.children[1]
     n1_deemian_data = n1_present.children[2]
 
-    assert n1_readable_output.results == ["interactions"]
-    assert n1_readable_output.out_file == "protein_ligand.txt"
-    assert n1_readable_output.type == "readable_output"
+    assert n1_interaction_output.format == "detailed_conf_first"
+    assert n1_interaction_output.out_file == "protein_ligand.txt"
+    assert n1_interaction_output.type == "interaction_output"
     assert n1_deemian_data.out_file == "protein_ligand.db"
     assert n1_deemian_data.type == "deemian_data"

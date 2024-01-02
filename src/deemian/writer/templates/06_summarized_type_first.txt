@@ -1,0 +1,72 @@
+{% import 'macros.txt' as macros -%}
+{% for pair_name, interaction_data in results.items() %}
+interaction for "{{ pair_name }}":
+
+{%- set subjects = interacting_subjects[pair_name] -%}
+{%- set df = interaction_data.dataframe -%}
+
+{%- set unique_interaction = df.interaction_type.unique() %}
+{%- set groupbytype = df.groupby('interaction_type') %}
+{%- if 'electrostatic_cation' in unique_interaction %}
+{% set df_type = groupbytype.get_group('electrostatic_cation') %}
+    ELECTROSTATIC as_cation  has interactions with   interaction numbers
+
+{%- set confs = df_type.conformation.unique() -%}
+{%- set groupbyconf = df_type.groupby('conformation') -%}
+
+{% for conf in confs %}
+{%- set df_conf = groupbyconf.get_group(conf) %}
+    {{ macros.conf_pair(conf, subjects) }}
+{% set unique_resid = df_conf.residue_number_s1.unique() -%}
+{%- set groupbyresid = df_conf.groupby('residue_number_s1') %}
+
+{%- for res_id in unique_resid %}
+{%- set df_res_id = groupbyresid.get_group(res_id) %}
+{%- set first = df_res_id.iloc[0] %}
+{%- set unique_resid2 = (df_res_id.residue_number_s2.unique()) -%}
+{%- set groupbyresid2 = df_res_id.groupby('residue_number_s2') %}
+    {{ macros.name_num_chain(first, res_id) }}
+{%- for res_id2 in unique_resid2 -%}
+{%- set df_res_id2 = groupbyresid2.get_group(res_id2) -%}
+{%- set first = df_res_id2.iloc[0] -%}
+{% if loop.index == 1 -%}
+{{ macros.name_num_chain2(first, res_id) }} {{ macros.df_len(df_res_id2, len) -}}
+{% else %}
+{{ ''.ljust(28) }} {{ macros.name_num_chain2(first, res_id) }} {{ macros.df_len(df_res_id2, len) }}
+{%- endif -%}
+{% endfor %}
+{% endfor -%}
+{% endfor -%}
+{%- endif %}
+{%- if 'electrostatic_anion' in unique_interaction %}
+{% set df_type = groupbytype.get_group('electrostatic_anion') %}
+    ELECTROSTATIC as_anion   has interactions with   interaction numbers
+
+{%- set confs = df_type.conformation.unique() -%}
+{%- set groupbyconf = df_type.groupby('conformation') -%}
+
+{% for conf in confs %}
+{%- set df_conf = groupbyconf.get_group(conf) %}
+    {{ macros.conf_pair(conf, subjects) }}
+{% set unique_resid = df_conf.residue_number_s1.unique() -%}
+{%- set groupbyresid = df_conf.groupby('residue_number_s1') %}
+
+{%- for res_id in unique_resid %}
+{%- set df_res_id = groupbyresid.get_group(res_id) %}
+{%- set first = df_res_id.iloc[0] %}
+{%- set unique_resid2 = sorted(df_res_id.residue_number_s2.unique()) -%}
+{%- set groupbyresid2 = df_res_id.groupby('residue_number_s2') %}
+    {{ macros.name_num_chain(first, res_id) }}
+{%- for res_id2 in unique_resid2 -%}
+{%- set df_res_id2 = groupbyresid2.get_group(res_id2) -%}
+{%- set first = df_res_id2.iloc[0] -%}
+{% if loop.index == 1 -%}
+{{ macros.name_num_chain2(first, res_id) }} {{ macros.df_len(df_res_id2, len) -}}
+{% else %}
+{{ ''.ljust(28) }} {{ macros.name_num_chain2(first, res_id) }} {{ macros.df_len(df_res_id2, len) }}
+{%- endif -%}
+{% endfor %}
+{% endfor -%}
+{% endfor -%}
+{%- endif %}
+{% endfor %}

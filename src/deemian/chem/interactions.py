@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pandas as pd
 from rdkit.Chem import AllChem as Chem
@@ -14,8 +14,7 @@ class InteractionData:
     subject_1_df: pd.DataFrame
     subject_2_df: pd.DataFrame
     conformation: list
-    electrostatic_s1_as_cation: pd.DataFrame = None
-    electrostatic_s1_as_anion: pd.DataFrame = None
+    dataframe: pd.DataFrame = field(default_factory=lambda: pd.DataFrame())
 
     def calculate_electrostatic(self, positive: bool, negative: bool):
         cation_mode = "all_cation" if positive else "apparent_cation"
@@ -38,17 +37,17 @@ class InteractionData:
             conformation_column = "conf_" + str(conf_num)
 
             if (not cation_1_df.empty) and (not anion_2_df.empty):
-                print(cation_1_df.empty, anion_2_df.empty)
                 cation_1_tree = KDTree(cation_1_df[conformation_column].to_list())
                 anion_2_tree = KDTree(anion_2_df[conformation_column].to_list())
 
                 s1_as_cation = cation_1_tree.query_ball_tree(anion_2_tree, 4.5)
 
-                self.electrostatic_s1_as_cation = generate_pair_info(
+                pair_info_df = generate_pair_info(
                     s1_as_cation, cation_1_df, anion_2_df, conf_num, "electrostatic_cation"
                 )
-            else:
-                self.electrostatic_s1_as_cation = pd.DataFrame()
+
+                if not pair_info_df.empty:
+                    self.dataframe = pd.concat([self.dataframe, pair_info_df])
 
             if (not cation_2_df.empty) and (not anion_1_df.empty):
                 cation_2_tree = KDTree(cation_2_df[conformation_column].to_list())
@@ -56,8 +55,9 @@ class InteractionData:
 
                 s1_as_anion = anion_1_tree.query_ball_tree(cation_2_tree, 4.5)
 
-                self.electrostatic_s1_as_anion = generate_pair_info(
+                pair_info_df = generate_pair_info(
                     s1_as_anion, anion_1_df, cation_2_df, conf_num, "electrostatic_anion"
                 )
-            else:
-                self.electrostatic_s1_as_anion = pd.DataFrame()
+
+                if not pair_info_df.empty:
+                    self.dataframe = pd.concat([self.dataframe, pair_info_df])

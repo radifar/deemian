@@ -8,6 +8,7 @@ from deemian.chem.interactions import InteractionData
 from deemian.chem.reader import mol_to_dataframe
 from deemian.chem.selection import mol_dataframe_selection
 from deemian.chem.utility import dataframe_to_pdb_block
+from deemian.writer.readable import generate_report, write_readable
 
 
 @dataclass
@@ -29,6 +30,7 @@ class Measurement:
     ionizable: dict = field(default_factory=lambda: {"positive": False, "negative": False})
     interacting_subjects: dict = field(default_factory=lambda: {})
     conformation: list = field(default_factory=lambda: [])
+    calculation_results: dict = field(default_factory=lambda: {})
 
     def conformation_range(self, start, end):
         self.conformation = list(range(int(start), int(end) + 1))
@@ -46,7 +48,6 @@ class DeemianData:
     molecule: dict[str, Molecule] = field(default_factory=lambda: {})
     selection: dict[str, Selection] = field(default_factory=lambda: {})
     measurement: dict[str, Measurement] = field(default_factory=lambda: defaultdict(Measurement))
-    interaction_details: dict = field(default_factory=lambda: {})
     readable_output: dict = field(default_factory=lambda: {})
 
     def add_molecule(self, name):
@@ -82,8 +83,8 @@ class DeemianData:
             subject_1, subject_2 = measurement.interacting_subjects[pair]
             subject_1 = self.selection[subject_1]
             subject_2 = self.selection[subject_2]
-            subject_1_mol = self.molecule[subject_1.mol_parent]
-            subject_2_mol = self.molecule[subject_2.mol_parent]
+            subject_1_mol = self.molecule[subject_1.mol_parent].rdkit_mol
+            subject_2_mol = self.molecule[subject_2.mol_parent].rdkit_mol
             subject_1_df = subject_1.mol_dataframe
             subject_2_df = subject_2.mol_dataframe
             conformation = measurement.conformation
@@ -97,10 +98,13 @@ class DeemianData:
             if ("electrostatic" in interaction_type) or ("all" in interaction_type):
                 interaction_data.calculate_electrostatic(**measurement.ionizable)
 
-            self.interaction_details[pair] = interaction_data
+            measurement.calculation_results[pair] = interaction_data
 
-    def write_readable_output(self, out_file: str, presentation_id: str):
-        return (out_file, presentation_id)
+    def write_readable_output(self, presentation_id: str, out_file: str, form):
+        measurement = self.measurement[presentation_id]
+
+        report = generate_report(measurement, form)
+        write_readable(report, out_file)
 
     def write_deemian_data(self, out_file: str, presentation_id: str):
         return (out_file, presentation_id)

@@ -13,7 +13,7 @@ def parser(text: str, grammar: str = "grammar.lark") -> Tree:
 class InstructionTransformer(Transformer):
     Selection = namedtuple("Selection", "name selection type", defaults=["selection"])
     BondCorrection = namedtuple("BondCorrection", "name template type", defaults=["bond_correction"])
-    ReadableOutput = namedtuple("ReadableOutput", "results out_file type", defaults=["readable_output"])
+    InteractionOutput = namedtuple("InteractionOutput", "format out_file type", defaults=["interaction_output"])
     DeemianData = namedtuple("DeemianData", "out_file type", defaults=["deemian_data"])
     InteractionList = namedtuple("InteractionList", "interactions type", defaults=["interaction_list"])
     IncludeIonizable = namedtuple("IncludeIonizable", "charge boolean type", defaults=["include_ionizable"])
@@ -86,11 +86,15 @@ class InstructionTransformer(Transformer):
     def conformation_range(self, args):
         return self.ConformationRange(args[0].value, args[1].value)
 
-    def readable_output(self, args):
-        results = [arg.value for arg in args[:-1]]
-        out_file = args[-1].value
+    def interaction_output(self, args):
+        if len(args) == 2:
+            format = args[0].value
+            out_file = args[1].value
+        else:
+            format = "detailed_conf_first"
+            out_file = args[0].value
 
-        return self.ReadableOutput(results, out_file)
+        return self.InteractionOutput(format, out_file)
 
     def deemian_data(self, args):
         return self.DeemianData(args[0].value)
