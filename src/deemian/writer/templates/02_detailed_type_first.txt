@@ -4,6 +4,9 @@ interaction for "{{ pair_name }}":
 
 {%- set subject_1, subject_2 = interacting_subjects[pair_name] -%}
 {%- set df = interaction_data.dataframe -%}
+{%- if len(df) == 0 %}
+    No interaction detected
+{%- else -%}
 {%- set unique_interaction = df.interaction_type.unique() %}
 {%- set groupbytype = df.groupby('interaction_type') %}
 
@@ -55,4 +58,5 @@ interaction for "{{ pair_name }}":
 {% endfor -%}
 {% endfor -%}
 {%- endif %}
+{% endif %}
 {% endfor %}
