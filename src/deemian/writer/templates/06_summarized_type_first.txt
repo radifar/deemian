@@ -4,7 +4,9 @@ interaction for "{{ pair_name }}":
 
 {%- set subjects = interacting_subjects[pair_name] -%}
 {%- set df = interaction_data.dataframe -%}
-
+{%- if len(df) == 0 %}
+    No interaction detected
+{%- else -%}
 {%- set unique_interaction = df.interaction_type.unique() %}
 {%- set groupbytype = df.groupby('interaction_type') %}
 {%- if 'electrostatic_cation' in unique_interaction %}
@@ -69,4 +71,5 @@ interaction for "{{ pair_name }}":
 {% endfor -%}
 {% endfor -%}
 {%- endif %}
+{% endif %}
 {% endfor %}
