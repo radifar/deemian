@@ -1,0 +1,55 @@
+{% import 'macros.txt' as macros -%}
+{% for pair_name, interaction_data in results.items() %}
+interaction for "{{ pair_name }}":
+
+{%- set subject_1, subject_2 = interacting_subjects[pair_name] -%}
+{%- set df = interaction_data.dataframe -%}
+{%- set confs = df.conformation.unique() -%}
+{%- set groupbyconf = df.groupby('conformation') -%}
+
+{% for conf in confs %}
+conf {{ "{}".format(conf).rjust(10) }}
+
+{%- set df_conf = groupbyconf.get_group(conf) -%}
+{%- set unique_interaction = df_conf.interaction_type.unique() %}
+{%- set groupbytype = df_conf.groupby('interaction_type') %}
+{%- if 'electrostatic_cation' in unique_interaction %}
+    ELECTROSTATIC as_cation:
+
+{%- set df_type = groupbytype.get_group('electrostatic_cation') -%}
+{%- set unique_id = df_type.atom_id_s1.unique() -%}
+{%- set groupbyid = df_type.groupby('atom_id_s1') %}
+
+                         {{ '{}'.format(subject_1).ljust(11) }} {{ '{}'.format(subject_2) }}
+{% for atom_id in unique_id %}
+{%- set df_atom_id = groupbyid.get_group(atom_id) %}
+{%- set first = df_atom_id.iloc[0] %}
+{%- set res_num_chain = '{}.{}'.format(first.residue_number_s1, first.chain_id_s1) %}
+    {{ macros.print_id(atom_id, df_atom_id) }}
+    {{ macros.print_name(first, df_atom_id) }}
+    {{ macros.print_res_name(first, df_atom_id) }}
+    {{ macros.print_res_num_chain(res_num_chain, df_atom_id, zip) }}
+    {{ macros.print_distance(df_atom_id) }}
+{% endfor -%}
+{%- endif %}
+{%- if 'electrostatic_anion' in unique_interaction %}
+    ELECTROSTATIC as_anion:
+
+{%- set df_type = groupbytype.get_group('electrostatic_anion') -%}
+{%- set unique_id = df_type.atom_id_s1.unique() -%}
+{%- set groupbyid = df_type.groupby('atom_id_s1') %}
+
+                         {{ '{}'.format(subject_1).ljust(11) }} {{ '{}'.format(subject_2) }}
+{% for atom_id in unique_id %}
+{%- set df_atom_id = groupbyid.get_group(atom_id) %}
+{%- set first = df_atom_id.iloc[0] %}
+{%- set res_num_chain = '{}.{}'.format(first.residue_number_s1, first.chain_id_s1) %}
+    {{ macros.print_id(atom_id, df_atom_id) }}
+    {{ macros.print_name(first, df_atom_id) }}
+    {{ macros.print_res_name(first, df_atom_id) }}
+    {{ macros.print_res_num_chain(res_num_chain, df_atom_id, zip) }}
+    {{ macros.print_distance(df_atom_id) }}
+{% endfor -%}
+{% endif %}
+{% endfor %}
+{% endfor %}

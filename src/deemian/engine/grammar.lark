@@ -16,8 +16,10 @@ measurement_instruction: "interactions" INTERACTION("," INTERACTION)*           
                        | "conformation" INTEGER("," INTEGER)*                             -> conformation
                        | "conformation" INTEGER "to" INTEGER                              -> conformation_range
 
-presentation_instruction: RESULTS("," RESULTS)* FILE_NAME -> readable_output
-                        | "deemiandata" FILE_NAME         -> deemian_data
+presentation_instruction: "interactions" INTERACTION_FORMAT? FILE_NAME -> interaction_output
+                        | "IPA" FILE_NAME                             -> ipa_output
+                        | "bitstring" FILE_NAME                       -> bitstring_output
+                        | "deemiandata" FILE_NAME                     -> deemian_data
 
 combine_selection: LOGIC~1..2 (keyvalue | MACRO)
 selection: keyvalue | MACRO
@@ -32,8 +34,13 @@ LOGIC: ("AND"|"and"|"OR"|"or"|"NOT"|"not")
 BOOLEAN: ("TRUE"|"true"|"FALSE"|"false")
 INTERACTION: ("nonpolar"|"electrostatic"|"hydrogen_bond"|"pi"|"all")
 PREPOSITION: ("ON"|"on"|"IN"|"in"|"BETWEEN"|"between"|"AND"|"and")
-RESULTS: ("interactions"|"IPA"|"bitstring")
 CHARGE: ("positive"|"negative")
+INTERACTION_FORMAT.1: ("detailed_conf_first"
+                  | "detailed_type_first"
+                  | "clustered_conf_first"
+                  | "clustered_type_first"
+                  | "summarized_conf_first"
+                  | "summarized_type_first")
 FILE_NAME: /[0-9a-zA-Z_.\-]+/
 IDENTIFIER: /[0-9a-zA-Z_.\-]+/
 INTEGER: /[0-9]+/

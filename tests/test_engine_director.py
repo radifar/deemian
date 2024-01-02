@@ -9,7 +9,7 @@ from deemian.engine.director import director
 
 Selection = namedtuple("Selection", "name selection type", defaults=["selection"])
 BondCorrection = namedtuple("BondCorrection", "name template type", defaults=["bond_correction"])
-ReadableOutput = namedtuple("ReadableOutput", "results out_file type", defaults=["readable_output"])
+InteractionOutput = namedtuple("InteractionOutput", "format out_file type", defaults=["interaction_output"])
 DeemianData = namedtuple("DeemianData", "out_file type", defaults=["deemian_data"])
 InteractionList = namedtuple("InteractionList", "interactions type", defaults=["interaction_list"])
 IncludeIonizable = namedtuple("IncludeIonizable", "charge boolean type", defaults=["include_ionizable"])
@@ -60,7 +60,9 @@ def steps_simple() -> Tree:
                 "presentation",
                 [
                     Token("IDENTIFIER", "protein_ligand"),
-                    ReadableOutput(results=["interactions"], out_file="protein_ligand.txt", type="readable_output"),
+                    InteractionOutput(
+                        format="detailed_conf_first", out_file="protein_ligand.txt", type="interaction_output"
+                    ),
                     DeemianData(out_file="protein_ligand.db", type="deemian_data"),
                 ],
             ),
@@ -124,8 +126,8 @@ def steps_multiselect() -> Tree:
                 "presentation",
                 [
                     Token("IDENTIFIER", "ace2_spike_rbd"),
-                    ReadableOutput(
-                        results=["interactions"], out_file="ace2_spike_rbd_detailed.txt", type="readable_output"
+                    InteractionOutput(
+                        format="detailed_conf_first", out_file="ace2_spike_rbd_detailed.txt", type="interaction_output"
                     ),
                     DeemianData(out_file="ace2_spike_rbd_detailed.db", type="deemian_data"),
                 ],
@@ -166,7 +168,9 @@ def steps_multiconf() -> Tree:
                 "presentation",
                 [
                     Token("IDENTIFIER", "vps4_chmp6"),
-                    ReadableOutput(results=["interactions"], out_file="vps4_chmp6.txt", type="readable_output"),
+                    InteractionOutput(
+                        format="detailed_conf_first", out_file="vps4_chmp6.txt", type="interaction_output"
+                    ),
                     DeemianData(out_file="vps4_chmp6.db", type="deemian_data"),
                 ],
             ),
@@ -195,7 +199,7 @@ def test_engine_director_simple(steps_simple):
             ),
             call.add_measurement().conformation.extend([1]),
             call.calculate_interactions("protein_ligand"),
-            call.write_readable_output("protein_ligand.txt", "protein_ligand"),
+            call.write_readable_output("protein_ligand", "protein_ligand.txt", "detailed_conf_first"),
             call.write_deemian_data("protein_ligand.db", "protein_ligand"),
         ]
     )
@@ -230,7 +234,7 @@ def test_engine_director_multiselect(steps_multiselect):
             ),
             call.add_measurement().interacting_subjects.__setitem__("internal_rbm", ("spike_rbm", "spike_rbm")),
             call.calculate_interactions("ace2_spike_rbd"),
-            call.write_readable_output("ace2_spike_rbd_detailed.txt", "ace2_spike_rbd"),
+            call.write_readable_output("ace2_spike_rbd", "ace2_spike_rbd_detailed.txt", "detailed_conf_first"),
             call.write_deemian_data("ace2_spike_rbd_detailed.db", "ace2_spike_rbd"),
         ]
     )
@@ -252,7 +256,7 @@ def test_engine_director_multiconf(steps_multiconf):
             call.add_measurement().interacting_subjects.__setitem__("vps4:chmp6", ("vps4", "chmp6")),
             call.add_measurement().conformation_range("1", "20"),
             call.calculate_interactions("vps4_chmp6"),
-            call.write_readable_output("vps4_chmp6.txt", "vps4_chmp6"),
+            call.write_readable_output("vps4_chmp6", "vps4_chmp6.txt", "detailed_conf_first"),
             call.write_deemian_data("vps4_chmp6.db", "vps4_chmp6"),
         ]
     )

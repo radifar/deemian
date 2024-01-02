@@ -13,12 +13,15 @@ def interaction_data_n1(oseltamivir_corrected, n1, oseltamivir_corrected_df, n1_
 def test_interaction_data_calculate_electrostatic(interaction_data_n1):
     interaction_data_n1.calculate_electrostatic(positive=True, negative=True)
 
-    assert interaction_data_n1.electrostatic_s1_as_cation.shape == (3, 17)
-    interaction_data_n1.electrostatic_s1_as_anion.shape == (12, 17)
+    df = interaction_data_n1.dataframe
+    electrostatic_as_cat_df = df[df["interaction_type"] == "electrostatic_cation"]
+    electrostatic_as_an_df = df[df["interaction_type"] == "electrostatic_anion"]
+
+    assert electrostatic_as_cat_df.shape == (3, 17)
+    assert electrostatic_as_an_df.shape == (12, 17)
 
 
 def test_interaction_data_calculate_electrostatic_apparent_only(interaction_data_n1):
     interaction_data_n1.calculate_electrostatic(positive=False, negative=False)
 
-    assert interaction_data_n1.electrostatic_s1_as_cation.shape == (0, 0)
-    assert interaction_data_n1.electrostatic_s1_as_anion.shape == (0, 0)
+    assert interaction_data_n1.dataframe.shape == (0, 0)

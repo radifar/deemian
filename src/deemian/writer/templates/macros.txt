@@ -1,0 +1,86 @@
+{% macro print_id(s1_id, df) -%}
+{{ 'id'.ljust(20) }} {{ '{}'.format(s1_id).ljust(12) }}
+{%- for id in df.atom_id_s2 -%}
+{{ '{}'.format(id).ljust(8) }}
+{%- endfor %}
+{%- endmacro %}
+
+{% macro print_name(first, df) -%}
+{{ 'atom_name'.ljust(20) }} {{ '{}'.format(first.atom_name_s1).strip().ljust(12) }}
+{%- for name in df.atom_name_s2 -%}
+{{ '{}'.format(name).strip().ljust(8) }}
+{%- endfor %}
+{%- endmacro %}
+
+{% macro print_res_name(first, df) -%}
+{{ 'res_name'.ljust(20) }} {{ '{}'.format(first.residue_name_s1).ljust(12) }}
+{%- for name in df.residue_name_s2 -%}
+{{ '{}'.format(name).ljust(8) }}
+{%- endfor %}
+{%- endmacro %}
+
+{% macro print_res_num_chain(res_num_chain, df, zip) -%}
+{{ 'res_num.chain'.ljust(20) }} {{ '{}'.format(res_num_chain).ljust(12) }}
+{%- for num, chain in zip(df.residue_number_s2, df.chain_id_s2) -%}
+{{ '{}.{}'.format(num, chain).ljust(8) }}
+{%- endfor %}
+{%- endmacro %}
+
+{% macro print_distance(df) -%}
+{{ 'distance'.ljust(33) }}
+{%- for distance in df.distance -%}
+{{ '{:.3f}'.format(distance).ljust(8) }}
+{%- endfor %}
+{%- endmacro -%}
+
+
+{%- macro clustered_res_name(first, df, zip) -%}
+{{ ''.ljust(20) }} {{ '{}'.format(first.residue_name_s1).ljust(12) }}
+{%- for num, name in zip(df.residue_number_s2, df.residue_name_s2) -%}
+{%- if loop.previtem -%}
+{%- if loop.previtem[0] == num -%}
+{{ ''.ljust(8) }}
+{%- else -%}
+{{ '{}'.format(name).ljust(8) }}
+{%- endif -%}
+{%- else -%}
+{{ '{}'.format(name).ljust(8) }}
+{%- endif -%}
+{%- endfor -%}
+{%- endmacro -%}
+
+{%- macro clustered_res_num_chain(res_num_chain, df, zip) -%}
+{{ ''.ljust(20) }} {{ '{}'.format(res_num_chain).ljust(12) }}
+{%- for num, chain in zip(df.residue_number_s2, df.chain_id_s2) -%}
+{%- if loop.previtem -%}
+{%- if loop.previtem[0] == num -%}
+{{ ''.ljust(8) }}
+{%- else -%}
+{{ '{}.{}'.format(num, chain).ljust(8) }}
+{%- endif -%}
+{%- else -%}
+{{ '{}.{}'.format(num, chain).ljust(8) }}
+{%- endif -%}
+{%- endfor -%}
+{%- endmacro -%}
+
+{%- macro name_num_chain(first, res_id, nljust) -%}
+{{ '{} {}.{}'.format(first.residue_name_s1, res_id, first.chain_id_s1).ljust(25) }}
+{%- endmacro -%}
+
+{%- macro name_num_chain2(first, res_id) -%}
+{{ '{} {}.{}'.format(first.residue_name_s2, res_id, first.chain_id_s2).ljust(30) }}
+{%- endmacro -%}
+
+{%- macro df_len(df, len) -%}
+{{ '{}'.format(len(df)).rjust(2) }}
+{%- endmacro -%}
+
+{%- macro pair(subjects) -%}
+{{ '{}'.format(subjects[0]).ljust(23) }}  {{ '{}'.format(subjects[1]) }}
+{%- endmacro -%}
+
+{%- macro conf_pair(conf, subjects) -%}
+conf {{ "{}".format(conf).rjust(10) }}
+    {{ '{}'.format(subjects[0]).ljust(23) }}  {{ '{}'.format(subjects[1]) }}
+{%- endmacro -%}

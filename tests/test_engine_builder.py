@@ -65,7 +65,8 @@ def test_deemian_data_measurement():
         == """Measurement(interactions=['all'], \
 ionizable={'positive': True, 'negative': False}, \
 interacting_subjects={'oseltamivir:protein_A': ('oseltamivir', 'protein_A')}, \
-conformation=[1, 2, 3, 4, 5])"""
+conformation=[1, 2, 3, 4, 5], \
+calculation_results={})"""
     )
     assert result == 1
 
@@ -73,7 +74,9 @@ conformation=[1, 2, 3, 4, 5])"""
 def test_deemian_data_calculate_interactions():
     data = DeemianData()
 
-    data.molecule["5nzn.pdb"] = "neuraminidase:rdkitmol"
+    neuraminidase = Mock()
+    neuraminidase.rdkit_mol = "neuraminidase:rdkitmol"
+    data.molecule["5nzn.pdb"] = neuraminidase
 
     protein_A = Mock()
     protein_A.mol_parent = "5nzn.pdb"
@@ -112,7 +115,9 @@ def test_deemian_data_calculate_interactions():
 def test_deemian_data_calculate_interactions_empty_conformation():
     data = DeemianData()
 
-    data.molecule["5nzn.pdb"] = "neuraminidase:rdkitmol"
+    neuraminidase = Mock()
+    neuraminidase.rdkit_mol = "neuraminidase:rdkitmol"
+    data.molecule["5nzn.pdb"] = neuraminidase
 
     protein_A = Mock()
     protein_A.mol_parent = "5nzn.pdb"
@@ -139,8 +144,17 @@ def test_deemian_data_calculate_interactions_empty_conformation():
 def test_deemian_data_presentation():
     data = DeemianData()
 
-    readable_output = data.write_readable_output("protein_ligand.txt", "protein_ligand")
-    deemian_data = data.write_deemian_data("protein_ligand.db", "protein_ligand")
+    measurement = data.add_measurement("protein_ligand")
+    measurement.interactions.extend(["all"])
+    measurement.set_ionizable("positive", "true")
+    measurement.set_ionizable("negative", "true")
+    measurement.interacting_subjects["oseltamivir:protein_A"] = ("oseltamivir", "protein_A")
+    measurement.calculation_results["oseltamivir:protein_A"] = "InteractionData"
 
-    assert readable_output == ("protein_ligand.txt", "protein_ligand")
-    assert deemian_data == ("protein_ligand.db", "protein_ligand")
+    with patch("deemian.engine.builder.generate_report") as reporter:
+        with patch("deemian.engine.builder.write_readable") as writer:
+            data.write_readable_output("protein_ligand", "protein_ligand.txt", "detailed_conf_first")
+            data.write_deemian_data("protein_ligand.db", "protein_ligand")
+
+            reporter.assert_called_once()
+            writer.assert_called_once()

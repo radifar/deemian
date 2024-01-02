@@ -45,8 +45,8 @@ def director(steps: Tree, data: DeemianData):
             presentation_id = instructions.pop(0).value
 
             for inst in instructions:
-                if inst.type == "readable_output":
-                    data.write_readable_output(inst.out_file, presentation_id)
+                if inst.type == "interaction_output":
+                    data.write_readable_output(presentation_id, inst.out_file, inst.format)
 
                 elif inst.type == "deemian_data":
                     data.write_deemian_data(inst.out_file, presentation_id)

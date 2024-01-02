@@ -13,6 +13,6 @@ measure protein_ligand [
 ]
 
 present protein_ligand [
-	interactions protein_ligand.txt
+	interactions detailed_conf_first protein_ligand.txt
 	deemiandata protein_ligand.db
 ]
