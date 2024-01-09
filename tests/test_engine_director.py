@@ -63,7 +63,7 @@ def steps_simple() -> Tree:
                     InteractionOutput(
                         format="detailed_conf_first", out_file="protein_ligand.txt", type="interaction_output"
                     ),
-                    DeemianData(out_file="protein_ligand.db", type="deemian_data"),
+                    DeemianData(out_file="protein_ligand.dd", type="deemian_data"),
                 ],
             ),
         ],
@@ -129,7 +129,7 @@ def steps_multiselect() -> Tree:
                     InteractionOutput(
                         format="detailed_conf_first", out_file="ace2_spike_rbd_detailed.txt", type="interaction_output"
                     ),
-                    DeemianData(out_file="ace2_spike_rbd_detailed.db", type="deemian_data"),
+                    DeemianData(out_file="ace2_spike_rbd_detailed.dd", type="deemian_data"),
                 ],
             ),
         ],
@@ -171,7 +171,7 @@ def steps_multiconf() -> Tree:
                     InteractionOutput(
                         format="detailed_conf_first", out_file="vps4_chmp6.txt", type="interaction_output"
                     ),
-                    DeemianData(out_file="vps4_chmp6.db", type="deemian_data"),
+                    DeemianData(out_file="vps4_chmp6.dd", type="deemian_data"),
                 ],
             ),
         ],
@@ -200,7 +200,7 @@ def test_engine_director_simple(steps_simple):
             call.add_measurement().conformation.extend([1]),
             call.calculate_interactions("protein_ligand"),
             call.write_readable_output("protein_ligand", "protein_ligand.txt", "detailed_conf_first"),
-            call.write_deemian_data("protein_ligand.db", "protein_ligand"),
+            call.write_deemian_data("protein_ligand.dd", "protein_ligand"),
         ]
     )
 
@@ -235,7 +235,7 @@ def test_engine_director_multiselect(steps_multiselect):
             call.add_measurement().interacting_subjects.__setitem__("internal_rbm", ("spike_rbm", "spike_rbm")),
             call.calculate_interactions("ace2_spike_rbd"),
             call.write_readable_output("ace2_spike_rbd", "ace2_spike_rbd_detailed.txt", "detailed_conf_first"),
-            call.write_deemian_data("ace2_spike_rbd_detailed.db", "ace2_spike_rbd"),
+            call.write_deemian_data("ace2_spike_rbd_detailed.dd", "ace2_spike_rbd"),
         ]
     )
 
@@ -257,6 +257,6 @@ def test_engine_director_multiconf(steps_multiconf):
             call.add_measurement().conformation_range("1", "20"),
             call.calculate_interactions("vps4_chmp6"),
             call.write_readable_output("vps4_chmp6", "vps4_chmp6.txt", "detailed_conf_first"),
-            call.write_deemian_data("vps4_chmp6.db", "vps4_chmp6"),
+            call.write_deemian_data("vps4_chmp6.dd", "vps4_chmp6"),
         ]
     )
