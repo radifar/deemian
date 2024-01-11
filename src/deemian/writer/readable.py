@@ -1,5 +1,7 @@
 from jinja2 import Environment, PackageLoader
 
+from deemian import __version__ as deemian_version
+
 
 def generate_report(measurement, template_form):
     template_dict = dict(
@@ -18,7 +20,12 @@ def generate_report(measurement, template_form):
     results = measurement.calculation_results
     interacting_subjects = measurement.interacting_subjects
     report = template.render(
-        results=results, interacting_subjects=interacting_subjects, zip=zip, len=len, sorted=sorted
+        results=results,
+        interacting_subjects=interacting_subjects,
+        version=deemian_version,
+        zip=zip,
+        len=len,
+        sorted=sorted,
     )
 
     return report
@@ -27,4 +34,4 @@ def generate_report(measurement, template_form):
 def write_readable(report, out_file):
     with open(out_file, mode="w", encoding="utf-8") as result:
         result.write(report)
-        print(f"... wrote {out_file}")
+        print(f"       ... wrote readable output: {out_file}")
