@@ -16,5 +16,5 @@ measure ace2_spike_rbd [
 
 present ace2_spike_rbd [
 	interactions ace2_spike_rbd_detailed.txt
-	deemiandata ace2_spike_rbd_detailed.db
+	deemiandata ace2_spike_rbd_detailed.dd
 ]

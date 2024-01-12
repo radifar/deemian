@@ -14,5 +14,5 @@ measure protein_ligand [
 
 present protein_ligand [
 	interactions detailed_conf_first protein_ligand.txt
-	deemiandata protein_ligand.db
+	deemiandata protein_ligand.dd
 ]

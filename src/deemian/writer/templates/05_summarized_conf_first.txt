@@ -1,4 +1,5 @@
-{% import 'macros.txt' as macros -%}
+
+Deemian version: {{ version }}{% import 'macros.txt' as macros -%}
 {% for pair_name, interaction_data in results.items() %}
 interaction for "{{ pair_name }}":
 

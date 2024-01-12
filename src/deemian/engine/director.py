@@ -36,7 +36,7 @@ def director(steps: Tree, data: DeemianData):
                     measurement.conformation.extend(inst.number)
 
                 elif inst.type == "conformation_range":
-                    measurement.conformation_range(inst.start, inst.end)
+                    measurement.set_conformation_range(inst.start, inst.end)
 
             data.calculate_interactions(measurement_id)
 
@@ -49,4 +49,4 @@ def director(steps: Tree, data: DeemianData):
                     data.write_readable_output(presentation_id, inst.out_file, inst.format)
 
                 elif inst.type == "deemian_data":
-                    data.write_deemian_data(inst.out_file, presentation_id)
+                    data.write_deemian_data(presentation_id, inst.out_file)

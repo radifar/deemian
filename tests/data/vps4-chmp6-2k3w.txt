@@ -13,5 +13,5 @@ measure vps4_chmp6 [
 
 present vps4_chmp6 [
 	interactions vps4_chmp6.txt
-	deemiandata vps4_chmp6.db
+	deemiandata vps4_chmp6.dd
 ]

@@ -4,11 +4,24 @@ from dataclasses import dataclass, field
 import pandas as pd
 from rdkit.Chem import AllChem as Chem
 
+from deemian import __version__ as deemian_version
 from deemian.chem.interactions import InteractionData
 from deemian.chem.reader import mol_to_dataframe
 from deemian.chem.selection import mol_dataframe_selection
 from deemian.chem.utility import dataframe_to_pdb_block
 from deemian.writer.readable import generate_report, write_readable
+from deemian.writer.bundle import write_metadata, write_corrected_molecule, write_calculation_result, write_bundle
+
+
+@dataclass
+class Metadata:
+    deemian_version: str = field(default_factory=lambda: deemian_version)
+    start_time: float = 0.0
+    end_time: float = 0.0
+    running_time: str = field(default_factory=lambda: "")
+    creation_time: str = field(default_factory=lambda: "")
+    selection: dict = field(default_factory=lambda: {})
+    measurement: dict = field(default_factory=lambda: {})
 
 
 @dataclass
@@ -30,10 +43,12 @@ class Measurement:
     ionizable: dict = field(default_factory=lambda: {"positive": False, "negative": False})
     interacting_subjects: dict = field(default_factory=lambda: {})
     conformation: list = field(default_factory=lambda: [])
+    conformation_range: list = field(default_factory=lambda: [])
     calculation_results: dict = field(default_factory=lambda: {})
 
-    def conformation_range(self, start, end):
+    def set_conformation_range(self, start, end):
         self.conformation = list(range(int(start), int(end) + 1))
+        self.conformation_range = [start, end]
 
     def set_ionizable(self, charge: str, boolean: str):
         if boolean == "true":
@@ -45,6 +60,7 @@ class Measurement:
 
 @dataclass
 class DeemianData:
+    metadata: Metadata = field(default_factory=lambda: Metadata())
     molecule: dict[str, Molecule] = field(default_factory=lambda: {})
     selection: dict[str, Selection] = field(default_factory=lambda: {})
     measurement: dict[str, Measurement] = field(default_factory=lambda: defaultdict(Measurement))
@@ -60,6 +76,7 @@ class DeemianData:
         selection_df = mol_dataframe_selection(selection, parent_df)
 
         self.selection[name] = Selection(mol_parent, selection_df)
+        self.metadata.selection[name] = dict(sele_string=selection, parent=mol_parent)
 
     def correct_bond(self, name, template):
         selection_df = self.selection[name].mol_dataframe
@@ -71,7 +88,8 @@ class DeemianData:
         corrected_df = mol_to_dataframe(corrected_mol)
 
         self.molecule[name] = Molecule(corrected_mol)
-        self.selection[name] = Selection(name, corrected_df, selection_pdb_block)
+        self.selection[name] = Selection(name, corrected_df, Chem.MolToPDBBlock(corrected_mol))
+        self.metadata.selection[name]["parent"] = name + "_corrected.pdb"
 
     def add_measurement(self, id):
         return self.measurement[id]
@@ -80,6 +98,7 @@ class DeemianData:
         measurement = self.measurement[id]
 
         for pair in measurement.interacting_subjects:
+            print(f"       ... start calculating {pair}")
             subject_1, subject_2 = measurement.interacting_subjects[pair]
             subject_1 = self.selection[subject_1]
             subject_2 = self.selection[subject_2]
@@ -106,5 +125,24 @@ class DeemianData:
         report = generate_report(measurement, form)
         write_readable(report, out_file)
 
-    def write_deemian_data(self, out_file: str, presentation_id: str):
-        return (out_file, presentation_id)
+    def write_deemian_data(self, presentation_id: str, out_file: str):
+        manifest = []
+        measurement_data = self.measurement[presentation_id]
+
+        for name, selection in self.selection.items():
+            if selection.mol_pdb_block:
+                pdb_block = selection.mol_pdb_block
+                corrected_molecule = write_corrected_molecule(name, pdb_block)
+
+                manifest.append(corrected_molecule)
+
+        for name, interaction_data in measurement_data.calculation_results.items():
+            interaction_df = interaction_data.dataframe
+            calculation_result = write_calculation_result(name, interaction_df)
+
+            manifest.append(calculation_result)
+
+        metadata_file = write_metadata(self.metadata, measurement_data)
+        manifest.append(metadata_file)
+
+        write_bundle(manifest, out_file)

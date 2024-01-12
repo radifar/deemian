@@ -54,7 +54,7 @@ def test_deemian_data_measurement():
     measurement.set_ionizable("positive", "true")
     measurement.set_ionizable("negative", "false")
     measurement.interacting_subjects["oseltamivir:protein_A"] = ("oseltamivir", "protein_A")
-    measurement.conformation_range("1", "4")
+    measurement.set_conformation_range("1", "4")
     measurement.conformation.extend([5])
 
     with patch.object(data, "calculate_interactions", return_value=1):
@@ -65,7 +65,7 @@ def test_deemian_data_measurement():
         == """Measurement(interactions=['all'], \
 ionizable={'positive': True, 'negative': False}, \
 interacting_subjects={'oseltamivir:protein_A': ('oseltamivir', 'protein_A')}, \
-conformation=[1, 2, 3, 4, 5], \
+conformation=[1, 2, 3, 4, 5], conformation_range=['1', '4'], \
 calculation_results={})"""
     )
     assert result == 1
@@ -144,17 +144,43 @@ def test_deemian_data_calculate_interactions_empty_conformation():
 def test_deemian_data_presentation():
     data = DeemianData()
 
+    protein_A = Mock()
+    protein_A.mol_parent = "5nzn.pdb"
+    protein_A.mol_dataframe = "protein_A:pd.DataFrame"
+    protein_A.mol_pdb_block = None
+
+    oseltamivir = Mock()
+    oseltamivir.mol_parent = "oseltamivir_corrected.pdb"
+    oseltamivir.mol_dataframe = "oseltamivir:pd.DataFrame"
+    oseltamivir.mol_pdb_block = "pdb_block:str"
+
+    data.selection["protein_A"] = protein_A
+    data.selection["oseltamivir"] = oseltamivir
+
     measurement = data.add_measurement("protein_ligand")
     measurement.interactions.extend(["all"])
     measurement.set_ionizable("positive", "true")
     measurement.set_ionizable("negative", "true")
     measurement.interacting_subjects["oseltamivir:protein_A"] = ("oseltamivir", "protein_A")
-    measurement.calculation_results["oseltamivir:protein_A"] = "InteractionData"
+
+    interaction_data = Mock()
+    interaction_data.dataframe = "interaction_data:pd.DataFrame"
+    measurement.calculation_results["oseltamivir:protein_A"] = interaction_data
 
     with patch("deemian.engine.builder.generate_report") as reporter:
         with patch("deemian.engine.builder.write_readable") as writer:
             data.write_readable_output("protein_ligand", "protein_ligand.txt", "detailed_conf_first")
-            data.write_deemian_data("protein_ligand.db", "protein_ligand")
 
             reporter.assert_called_once()
             writer.assert_called_once()
+
+    with patch("deemian.engine.builder.write_corrected_molecule") as writer_1:
+        with patch("deemian.engine.builder.write_calculation_result") as writer_2:
+            with patch("deemian.engine.builder.write_metadata") as metadata_writer:
+                with patch("deemian.engine.builder.write_bundle") as bundler:
+                    data.write_deemian_data("protein_ligand", "protein_ligand.dd")
+
+                    writer_1.assert_called_once()
+                    writer_2.assert_called_once()
+                    metadata_writer.assert_called_once()
+                    bundler.assert_called_once()
