@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict
 import io
 import json
 import tarfile
@@ -6,7 +6,7 @@ from unittest.mock import call, patch, MagicMock
 
 import pytest
 
-from deemian.engine.builder import Measurement
+from deemian.engine.builder import Measurement, Metadata
 from deemian.writer.bundle import (
     dict_factory,
     write_metadata,
@@ -14,17 +14,6 @@ from deemian.writer.bundle import (
     write_calculation_result,
     write_bundle,
 )
-
-
-@dataclass
-class Metadata:
-    deemian_version: str = "0.0.0"
-    start_time: float = 0.0
-    end_time: float = 0.0
-    running_time: str = ""
-    creation_time: str = ""
-    selection: dict = field(default_factory=lambda: {})
-    measurement: dict = field(default_factory=lambda: {})
 
 
 @pytest.fixture
