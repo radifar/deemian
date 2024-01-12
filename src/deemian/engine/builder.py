@@ -15,11 +15,11 @@ from deemian.writer.bundle import write_metadata, write_corrected_molecule, writ
 
 @dataclass
 class Metadata:
-    deemian_version: str = deemian_version
+    deemian_version: str = field(default_factory=lambda: str(deemian_version))
     start_time: float = 0.0
     end_time: float = 0.0
-    running_time: str = ""
-    creation_time: str = ""
+    running_time: str = field(default_factory=lambda: str())
+    creation_time: str = field(default_factory=lambda: str())
     selection: dict = field(default_factory=lambda: {})
     measurement: dict = field(default_factory=lambda: {})
 
