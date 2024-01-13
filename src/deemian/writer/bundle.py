@@ -21,13 +21,8 @@ def write_metadata(metadata, measurement_data):
         interacting_subject = dict(name=name, subjects=subjects, results=parquet_result)
         metadata_copy.measurement["interacting_subjects"].append(interacting_subject)
 
-    if measurement_data.conformation_range:
-        metadata_copy.measurement["conformation_range"] = measurement_data.conformation_range
-    else:
-        if measurement_data.conformation:
-            metadata_copy.measurement["conformation"] = measurement_data.conformation
-        else:
-            metadata_copy.measurement["conformation"] = [1]
+    conf_range = measurement_data.conformation_range
+    metadata_copy.measurement["conformation_range"] = [conf_range.start, conf_range.stop - 1]
 
     # setup the original metadata, because the running time is used by main script
     metadata.end_time = time.time()

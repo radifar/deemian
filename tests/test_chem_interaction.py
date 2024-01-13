@@ -5,7 +5,7 @@ from deemian.chem.interactions import InteractionData
 
 @pytest.fixture
 def interaction_data_n1(oseltamivir_corrected, n1, oseltamivir_corrected_df, n1_protein_A):
-    interaction_data = InteractionData(oseltamivir_corrected, n1, oseltamivir_corrected_df, n1_protein_A, [1])
+    interaction_data = InteractionData(oseltamivir_corrected, n1, oseltamivir_corrected_df, n1_protein_A, range(1, 2))
 
     return interaction_data
 

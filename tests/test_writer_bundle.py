@@ -43,19 +43,6 @@ def test_writer_bundle_dict_factory(metadata_obj):
     assert metadata_keys == expected_keys
 
 
-def test_writer_bundle_write_metadata(metadata_obj, measurement_data):
-    measurement_data.conformation = [1]
-
-    metadata_file = write_metadata(metadata_obj, measurement_data)
-    metadata_file_name = metadata_file[0]
-    metadata_io = metadata_file[1]
-    metadata_json = json.loads(metadata_io.read())
-
-    assert metadata_file_name == "deemian.json"
-    assert metadata_json["measurement"]["interacting_subjects"][0]["results"] == "oseltamivir_protein_A.parquet"
-    assert metadata_json["measurement"]["conformation"] == [1]
-
-
 def test_writer_bundle_write_metadata_no_conformation(metadata_obj, measurement_data):
     metadata_file = write_metadata(metadata_obj, measurement_data)
     metadata_file_name = metadata_file[0]
@@ -63,11 +50,11 @@ def test_writer_bundle_write_metadata_no_conformation(metadata_obj, measurement_
     metadata_json = json.loads(metadata_io.read())
 
     assert metadata_file_name == "deemian.json"
-    assert metadata_json["measurement"]["conformation"] == [1]
+    assert metadata_json["measurement"]["conformation_range"] == [1, 1]
 
 
 def test_writer_bundle_write_metadata_conformation_range(metadata_obj, measurement_data):
-    measurement_data.conformation_range = [1, 20]
+    measurement_data.conformation_range = range(1, 21)
 
     metadata_file = write_metadata(metadata_obj, measurement_data)
     metadata_file_name = metadata_file[0]

@@ -13,7 +13,7 @@ class InteractionData:
     subject_2_mol: Chem.rdchem.Mol
     subject_1_df: pd.DataFrame
     subject_2_df: pd.DataFrame
-    conformation: list
+    conformation_range: range
     dataframe: pd.DataFrame = field(default_factory=lambda: pd.DataFrame())
 
     def calculate_electrostatic(self, positive: bool, negative: bool):
@@ -33,7 +33,7 @@ class InteractionData:
         cation_2_df = df2[df2.index.isin(cation_2_ids)]
         anion_2_df = df2[df2.index.isin(anion_2_ids) & ~df2["atom_symbol"].isin(exclude_atom)]
 
-        for conf_num in self.conformation:
+        for conf_num in self.conformation_range:
             conformation_column = "conf_" + str(conf_num)
 
             if (not cation_1_df.empty) and (not anion_2_df.empty):

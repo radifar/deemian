@@ -42,13 +42,11 @@ class Measurement:
     interactions: list = field(default_factory=lambda: [])
     ionizable: dict = field(default_factory=lambda: {"positive": False, "negative": False})
     interacting_subjects: dict = field(default_factory=lambda: {})
-    conformation: list = field(default_factory=lambda: [])
-    conformation_range: list = field(default_factory=lambda: [])
+    conformation_range: range = field(default_factory=lambda: range(1, 2))
     calculation_results: dict = field(default_factory=lambda: {})
 
     def set_conformation_range(self, start, end):
-        self.conformation = list(range(int(start), int(end) + 1))
-        self.conformation_range = [start, end]
+        self.conformation_range = range(int(start), int(end) + 1)
 
     def set_ionizable(self, charge: str, boolean: str):
         if boolean == "true":
@@ -106,11 +104,11 @@ class DeemianData:
             subject_2_mol = self.molecule[subject_2.mol_parent].rdkit_mol
             subject_1_df = subject_1.mol_dataframe
             subject_2_df = subject_2.mol_dataframe
-            conformation = measurement.conformation
-            if not any(conformation):
-                conformation = [1]
+            conformation_range = measurement.conformation_range
 
-            interaction_data = InteractionData(subject_1_mol, subject_2_mol, subject_1_df, subject_2_df, conformation)
+            interaction_data = InteractionData(
+                subject_1_mol, subject_2_mol, subject_1_df, subject_2_df, conformation_range
+            )
 
             interaction_type = measurement.interactions
 

@@ -136,7 +136,6 @@ def test_measure_transform(n1_transformed, spike_transformed, vps_transformed):
     n1_ionizable1 = n1_measure.children[2]
     n1_ionizable2 = n1_measure.children[3]
     n1_interacting_subject = n1_measure.children[4]
-    n1_conformation = n1_measure.children[5]
 
     spike_measure = spike_transformed.children[1]
     spike_interacting_subject_as = spike_measure.children[4]
@@ -156,8 +155,6 @@ def test_measure_transform(n1_transformed, spike_transformed, vps_transformed):
     assert n1_interacting_subject.subject_2 == "protein_A"
     assert n1_interacting_subject.name == "oseltamivir:protein_A"
     assert n1_interacting_subject.type == "interacting_subject"
-    assert n1_conformation.number == [1]
-    assert n1_conformation.type == "conformation"
 
     assert spike_interacting_subject_as.subject_1 == "spike_rbm"
     assert spike_interacting_subject_as.subject_2 == "ace2_hotspot31"

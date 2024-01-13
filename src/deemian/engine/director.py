@@ -32,9 +32,6 @@ def director(steps: Tree, data: DeemianData):
                 elif inst.type == "interacting_subject":
                     measurement.interacting_subjects[inst.name] = (inst.subject_1, inst.subject_2)
 
-                elif inst.type == "conformation":
-                    measurement.conformation.extend(inst.number)
-
                 elif inst.type == "conformation_range":
                     measurement.set_conformation_range(inst.start, inst.end)
 
