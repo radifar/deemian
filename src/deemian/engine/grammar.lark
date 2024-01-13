@@ -13,7 +13,6 @@ measurement_instruction: "interactions" INTERACTION("," INTERACTION)*           
                        | "ionizable" CHARGE BOOLEAN                                       -> include_ionizable
                        | PREPOSITION IDENTIFIER (PREPOSITION IDENTIFIER)?                 -> interacting_subject
                        | PREPOSITION IDENTIFIER (PREPOSITION IDENTIFIER)? "as" IDENTIFIER -> interacting_subject_with_alias
-                       | "conformation" INTEGER("," INTEGER)*                             -> conformation
                        | "conformation" INTEGER "to" INTEGER                              -> conformation_range
 
 presentation_instruction: "interactions" INTERACTION_FORMAT? FILE_NAME -> interaction_output

@@ -54,8 +54,7 @@ def test_deemian_data_measurement():
     measurement.set_ionizable("positive", "true")
     measurement.set_ionizable("negative", "false")
     measurement.interacting_subjects["oseltamivir:protein_A"] = ("oseltamivir", "protein_A")
-    measurement.set_conformation_range("1", "4")
-    measurement.conformation.extend([5])
+    measurement.set_conformation_range("1", "5")
 
     with patch.object(data, "calculate_interactions", return_value=1):
         result = data.calculate_interactions("protein_ligand")
@@ -65,7 +64,7 @@ def test_deemian_data_measurement():
         == """Measurement(interactions=['all'], \
 ionizable={'positive': True, 'negative': False}, \
 interacting_subjects={'oseltamivir:protein_A': ('oseltamivir', 'protein_A')}, \
-conformation=[1, 2, 3, 4, 5], conformation_range=['1', '4'], \
+conformation_range=range(1, 6), \
 calculation_results={})"""
     )
     assert result == 1
@@ -94,7 +93,6 @@ def test_deemian_data_calculate_interactions():
     measurement.set_ionizable("positive", "true")
     measurement.set_ionizable("negative", "true")
     measurement.interacting_subjects["oseltamivir:protein_A"] = ("oseltamivir", "protein_A")
-    measurement.conformation.extend([1])
 
     with patch("deemian.engine.builder.InteractionData") as int_data:
         data.calculate_interactions("protein_ligand")
@@ -105,7 +103,7 @@ def test_deemian_data_calculate_interactions():
                     "neuraminidase:rdkitmol",
                     "oseltamivir:pd.DataFrame",
                     "protein_A:pd.DataFrame",
-                    [1],
+                    range(1, 2),
                 ),
                 call().calculate_electrostatic(positive=True, negative=True),
             ]

@@ -17,7 +17,6 @@ class InstructionTransformer(Transformer):
     DeemianData = namedtuple("DeemianData", "out_file type", defaults=["deemian_data"])
     InteractionList = namedtuple("InteractionList", "interactions type", defaults=["interaction_list"])
     IncludeIonizable = namedtuple("IncludeIonizable", "charge boolean type", defaults=["include_ionizable"])
-    Conformation = namedtuple("Conformation", "number type", defaults=["conformation"])
     ConformationRange = namedtuple("ConformationRange", "start end type", defaults=["conformation_range"])
     InteractingSubject = namedtuple(
         "InteractingSubject", "subject_1 subject_2 name type", defaults=["interacting_subject"]
@@ -78,10 +77,6 @@ class InstructionTransformer(Transformer):
         name = args[4].value
 
         return self.InteractingSubject(subject_1, subject_2, name)
-
-    def conformation(self, args):
-        conformation_list = [int(arg.value) for arg in args]
-        return self.Conformation(conformation_list)
 
     def conformation_range(self, args):
         return self.ConformationRange(args[0].value, args[1].value)

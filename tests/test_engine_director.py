@@ -13,7 +13,6 @@ InteractionOutput = namedtuple("InteractionOutput", "format out_file type", defa
 DeemianData = namedtuple("DeemianData", "out_file type", defaults=["deemian_data"])
 InteractionList = namedtuple("InteractionList", "interactions type", defaults=["interaction_list"])
 IncludeIonizable = namedtuple("IncludeIonizable", "charge boolean type", defaults=["include_ionizable"])
-Conformation = namedtuple("Conformation", "number type", defaults=["conformation"])
 ConformationRange = namedtuple("ConformationRange", "start end type", defaults=["conformation_range"])
 InteractingSubject = namedtuple(
     "InteractingSubject", "subject_1 subject_2 name type", defaults=["interacting_subject"]
@@ -53,7 +52,6 @@ def steps_simple() -> Tree:
                         name="oseltamivir:protein_A",
                         type="interacting_subject",
                     ),
-                    Conformation(number=[1], type="conformation"),
                 ],
             ),
             Tree(
@@ -197,7 +195,6 @@ def test_engine_director_simple(steps_simple):
             call.add_measurement().interacting_subjects.__setitem__(
                 "oseltamivir:protein_A", ("oseltamivir", "protein_A")
             ),
-            call.add_measurement().conformation.extend([1]),
             call.calculate_interactions("protein_ligand"),
             call.write_readable_output("protein_ligand", "protein_ligand.txt", "detailed_conf_first"),
             call.write_deemian_data("protein_ligand", "protein_ligand.dd"),

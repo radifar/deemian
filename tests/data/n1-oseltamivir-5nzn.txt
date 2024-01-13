@@ -9,7 +9,6 @@ measure protein_ligand [
 	ionizable positive true
 	ionizable negative true
 	between oseltamivir and protein_A
-    conformation 1
 ]
 
 present protein_ligand [
