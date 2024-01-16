@@ -22,7 +22,9 @@ introduction/whydeemian
 :hidden:
 :caption: Information
 
-changelog
-contributing
-conduct
+information/changelog
+information/roadmap
+information/contributing
+information/conduct
+information/acknowledgement
 ```
