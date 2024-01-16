@@ -6,8 +6,8 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "deemian"
-copyright = "2023, Muhammad Radifar"
+project = "Deemian"
+copyright = "2024, Muhammad Radifar"
 author = "Muhammad Radifar"
 
 # -- General configuration ---------------------------------------------------
@@ -15,22 +15,29 @@ author = "Muhammad Radifar"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-    "myst_nb",
-    "autoapi.extension",
-    "sphinx.ext.napoleon",
-    "sphinx.ext.viewcode",
-]
-autoapi_dirs = ["../src"]
+extensions = ["myst_parser"]
+# autoapi_dirs = ["../src"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+#
+# Additional note: when using venv to build documentation venv or .venv
+# should be excluded or error messages occur
+# https://github.com/sphinx-doc/sphinx/issues/2066#issuecomment-474587560
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "venv", ".venv"]
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
+
+html_theme_options = {
+    "sidebar_hide_name": True,
+    "light_logo": "Deemian_logo_web.png",
+    "dark_logo": "Deemian_logo_web.png",
+}
+
+html_static_path = ["_static"]

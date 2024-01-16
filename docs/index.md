@@ -1,13 +1,12 @@
-```{include} ../README.md
-```
+# Deemian DSL
+
+Deemian is a Domain Specific Language (DSL) for Deep Molecular Interaction Analysis.
 
 ```{toctree}
 :maxdepth: 1
 :hidden:
 
-example.ipynb
 changelog.md
 contributing.md
 conduct.md
-autoapi/index
 ```
