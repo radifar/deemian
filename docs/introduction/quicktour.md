@@ -1,40 +1,45 @@
 # Quick Tour
 
-For example using the following script as the input:
+
+::::::{tab-set}
+
+:::::{tab-item} input script
+:class-label: sd-shadow-sm
 
 ```text
 molecule 5nzn.pdb [
-	select protein_A = chain A and protein
-	select oseltamivir = chain A and resname G39
-	assign bond oseltamivir template CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O
+    select protein_A = chain A and protein
+    select oseltamivir = chain A and resname G39
+    assign bond oseltamivir template CCC(CC)O[C@@H]1C=C(C[C@@H]([C@H]1NC(=O)C)N)C(=O)O
 ]
 
 measure protein_ligand [
-	interactions all
-	ionizable positive true
-	ionizable negative true
-	between oseltamivir and protein_A
+    interactions all
+    ionizable positive true
+    ionizable negative true
+    between oseltamivir and protein_A
 ]
 
 present protein_ligand [
-	interactions protein_ligand.txt
-	deemiandata protein_ligand.dd
+    interactions protein_ligand.txt
+    deemiandata protein_ligand.dd
 ]
 ```
+:::::
 
-***
+:::::{tab-item} output 1 (protein_ligand.dd)
+:class-label: sd-shadow-sm
 
-Will generate two output file, the Deemian data file (`protein_ligand.dd`) which can be opened with Deemian Viewer:
-
-```{figure} ../_static/Deemian_viewer_n1_example.png
-:align: center
+:::{card}
+:img-top: ../_static/Deemian_viewer_n1_example.png
 
 **Figure 1.** Deemian Viewer shows the interactive 3D molecule visualization on the left and interaction data on the right.
-```
+:::
 
-***
+:::::
 
-And the following readable output (`protein_ligand.txt`):
+:::::{tab-item} output 2 (protein_ligand.txt)
+:class-label: sd-shadow-sm
 
 ```text
 Deemian version: 0.1.0
@@ -67,3 +72,7 @@ conf          1
     res_num.chain        503.A       293.A   293.A   293.A   368.A   368.A   368.A
     distance                         3.547   3.181   3.015   3.702   3.677   2.833
 ```
+
+:::::
+
+::::::

@@ -2,21 +2,25 @@
 
 A Domain Specific Language for Deep Molecular Interaction Analysis
 
-```{admonition} Attention
-   :class: attention
-
-   Both Deemian and Deemian Viewer is still under heavy construction. Use them at your own risk.
-```
 
 ```{toctree}
 :hidden:
-:caption: Introduction
 
 introduction/introduction
 introduction/quicktour
 introduction/whydeemian
 ```
 
+```{toctree}
+:hidden:
+:caption: Usage
+
+usage/feature
+usage/installation
+usage/gettingstarted
+usage/tutorial
+usage/references
+```
 
 ```{toctree}
 :hidden:

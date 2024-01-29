@@ -1,11 +1,22 @@
 # Why Deemian DSL?
 
-Molecular interaction analysis is essential in many research areas, including drug discovery, vaccine design, molecular genetic study, antibacterial/antiviral agent resistance mechanism, enzyme engineering, viral organ/host tropism, and more. With myriad use cases in molecular interaction analysis, currently, no tool can deal with all of those cases. Frequently, A molecular interaction analysis tool is designated for a specific research area, such as:
+Molecular interaction analysis is a critical aspect of various research fields such as drug discovery, vaccine design, enzyme engineering, and more.
+However, there is no one-size-fits-all tool that can handle all types of analyses.
+These tools are usually designed for specific research areas such as PDB structure analysis, structure-based virtual screening, or dynamic binding studies using MD.
 
-- PDB structure analysis (e.g., Arpeggio, Protein Structure Atlas, PLIP, and FingeRNAt),
-- structure-based virtual screening (e.g., IChem and PyPLIF HIPPOS), and
-- dynamic binding study using MD (e.g., MD-IFP).
+One way to address this issue is to allow users to specify the interaction analysis through programming.
+A library/framework for molecular interaction analysis, such as ProLIF, can achieve this.
+However, using such a library requires a certain level of mastery in the Python programming language, which can be challenging for some users.
 
-One possible approach to cover a wide range of use cases is by giving the user the power to specify the interaction analysis via programming. Such an approach is doable using a library/framework for molecular interaction analysis such as ProLIF. However, there is a caveat as it requires the user to have a certain level of mastery in Python language. And this is where Deemian enters the stage.
+This is where Deemian comes in.
+Deemian is a Domain-Specific Language (DSL) for molecular interaction analysis.
+In general, using DSLs offers several advantages, such as:
 
-Deemian is a Domain Specific Language (DSL) for molecular interaction analysis. Therefore, it allows the user to specify the instructions for molecule file reading, molecule selection, preparation, molecular interaction configuration, and result presentation. Deemian could empower computational chemists or bioinformaticians to do in-depth molecular interaction analysis by providing users with simple and intuitive commands. As it is easy to read, understand, replicate, and modify the Deemian script from another study, the other benefits of using Deemian for molecular interaction analysis are better readability, reproducibility, and reusability.
+- **Expressiveness**: DSLs are tailored to the specific needs and vocabulary of a particular domain, making them more expressive and concise for tasks within that domain. This can lead to clearer and more readable code.
+- **Abstraction**: DSLs allow you to abstract away unnecessary details, focusing on the key aspects of your problem domain. This can simplify development and improve code maintainability.
+- **Productivity**: DSLs can enhance productivity by providing specialized constructs and syntax that align closely with the problem you’re solving, reducing the amount of boilerplate code needed.
+- **Collaboration**: DSLs can bridge the communication gap between domain experts and developers. Non-programmers can often understand and contribute to DSL code, fostering better collaboration between technical and non-technical team members.
+
+In simple terms, Deemian is a DSL for molecular interaction analysis, which allows users to specify instructions for molecule file reading, molecule selection, preparation, molecular interaction configuration, and result presentation.
+It is designed to make in-depth molecular interaction analysis easier for computational chemists or bioinformaticians by providing simple and intuitive commands.
+Additionally, Deemian scripts are easy to read, replicate, and modify, which makes them more reusable and reproducible.
