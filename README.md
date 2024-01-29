@@ -1,4 +1,4 @@
-# deemian
+# Deemian DSL
 
 A Domain Specific Language for Deep Molecular Interaction Analysis
 

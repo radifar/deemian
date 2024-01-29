@@ -1,10 +1,8 @@
-# Changelog
+# Feature
 
-<!--next-version-placeholder-->
+At the moment Deemian only have minimum feature, in the future more feature will be added as decribed in the [Roadmap](../information/roadmap.md).
 
-## v0.1.0 (29/01/2024)
-
-- First release of `deemian`!
+Here is the list of current Deemian feature:
 - PDB file processing, both single (X-ray crystal structure) and multimodel (NMR solution structure).
 - Molecule bond assignment based on SMILES template.
 - Electrostatic interaction analysis.
