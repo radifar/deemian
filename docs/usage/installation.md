@@ -96,7 +96,8 @@ mamba activate learn_deemian
 
 ::::::
 
-To install Deemian, download the latest version from the [Deemian release page](https://github.com/radifar/deemian/releases). Extract the zip file and run the `pip install` command, using the directory name as the last argument:
+To install Deemian, download the latest version from the [Deemian release page](https://github.com/radifar/deemian/releases).
+Extract the zip / tar.gz file and run the `pip install` command, using the directory name as the last argument:
 
 ```bash
 pip install deemian-0.1.0
