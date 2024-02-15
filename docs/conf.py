@@ -1,3 +1,6 @@
+import os
+
+
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -45,3 +48,7 @@ html_theme_options = {
 }
 
 html_static_path = ["_static"]
+
+if os.getenv("READTHEDOCS"):
+    extensions.append("sphinxcontrib.googleanalytics")
+    googleanalytics_id = "G-GV5XETXYHY"

@@ -2,3 +2,4 @@ furo
 myst-parser
 sphinx-design
 sphinxcontrib-video
+sphinxcontrib-googleanalytics==0.4
